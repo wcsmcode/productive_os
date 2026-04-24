@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+/* Hiệu ứng cửa sổ OS mờ ảo */
+/* Custom Paper Theme */
+:root {
+    --bg-paper: #F5F2E7;
+    --bg-window: #FBF9F1;
+    --text-ink: #1A1A1B;
+    --accent-soft: #D8D1B4;
+    --border-width: 1.5px;
+}
+
+.paper-bg {
+    background-color: #F5F2E7;
+    background-image: radial-gradient(#F5F2E7 0.8px, transparent 0.8px);
+    background-size: 24px 24px;
+}
+
+.os-window {
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(42, 40, 32, 0.15); /* Border màu nâu xám nhẹ */
+    box-shadow: 6px 6px 0px rgba(42, 40, 32, 0.05); /* Đổ bóng kiểu Retro (không blur) */
+    border-radius: 8px;
+}
+
+.text-main {
+    color: #2A2820;
+}
+
+.btn-primary {
+    background-color: #2A2820;
+    color: #F5F2E7;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0px #4A5D4E;
+}
+
+.glass-panel {
+    background: rgba(228, 223, 200, 0.4);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(42, 40, 32, 0.1);
+}
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+.cursor-blink { animation: blink 1s infinite; }
