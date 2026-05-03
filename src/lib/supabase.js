@@ -44,9 +44,24 @@ export const AuthService = {
     // Lấy thông tin user hiện tại
     async getCurrentUser() {
         try {
-            const { data: { user }, error } = await supabase.auth.getUser();
-            if (error) throw error;
-            return user;
+            const { data: { user } } = await supabase.auth.getUser();        
+            
+            if (user) {
+                // 2. Lấy display_name từ bảng profiles
+                const { data: profileData } = await supabase
+                    .from('profiles')
+                    .select('display_name')
+                    .eq('id', user.id)
+                    .single();
+        
+                if (profileData) {
+                    return {
+                        name: profileData.display_name || 'User',
+                        avatar: (profileData.display_name || 'U').charAt(0).toUpperCase(),
+                        userEmail: user.email // Lấy email trực tiếp từ object auth user
+                    };
+                }
+            }    
         } catch (err) {
             console.error('Failed to get current user:', err);
             return null;

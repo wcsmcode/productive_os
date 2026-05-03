@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '/src/lib/supabase'; // Đường dẫn file khởi tạo supabase của mày
-import useAuthStore from '/src/lib/store.js';
+import {useAuthStore} from '/src/lib/store.js';
 
 const WelcomeScreen = () => {
 const setcurrentState = useAuthStore((state) => state.setcurrentState);

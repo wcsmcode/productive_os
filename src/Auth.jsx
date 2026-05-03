@@ -3,7 +3,7 @@ import SignIn from './components/auth/SignIn.jsx';
 import { supabase } from './lib/supabase.js';
 import Wellcome from './components/auth/Wellcome.jsx';
 import Register from './components/auth/Register.jsx';
-import useAuthStore from './lib/store.js';
+import {useAuthStore} from './lib/store.js';
 
 const Auth = () => {
     const currentState = useAuthStore((state) => state.currentState);

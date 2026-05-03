@@ -53,7 +53,7 @@ const SettingsApp = () => {
   const [activeTab, setActiveTab] = useState('home');
 
   return (
-    <div className="flex h-[550px] w-[850px] bg-[--bg-paper] text-black overflow-hidden rounded-lg border border-black font-mono select-none">
+    <div className="flex h-[550px] w-[850px] bg-bg-paper text-black overflow-hidden rounded-lg border border-black font-mono select-none">
       {/* Sidebar */}
       <aside className="w-64 border-r border-black p-4 flex flex-col gap-2 bg-[#ededed]">
         <div className="flex items-center gap-3 p-2 mb-6 border border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">

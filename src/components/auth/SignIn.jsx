@@ -1,7 +1,7 @@
 import React, { useState, useEffect, use } from 'react';
 import { AuthService } from '/src/lib/supabase'; // Nhớ import client của mày
 import {UserRound} from 'lucide-react';
-import useAuthStore from '/src/lib/store.js';
+import {useAuthStore} from '/src/lib/store.js';
 const SignIn = () => {
     const setcurrentState = useAuthStore((state) => state.setcurrentState);
     const [now, setnow] = useState(new Date());

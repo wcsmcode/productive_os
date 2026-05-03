@@ -1,8 +1,10 @@
 import {React, useState} from 'react';
 import { supabase } from '/src/lib/supabase'; // Đường dẫn file khởi tạo supabase của mày
 import { div } from 'framer-motion/client';
+import {useAuthStore} from '/src/lib/store.js';
 
 const Register = () => {
+    const setcurrentState = useAuthStore((state) => state.setcurrentState);
     return (
         <div className="paper-bg text-[#2A2820] font-sans h-screen flex items-center justify-center p-6">
 
@@ -43,7 +45,7 @@ const Register = () => {
 
                 <div className="mt-8 text-center">
                     <p className="text-[10px] font-bold opacity-50 uppercase tracking-widest">
-                        Already registered? <a href="login.html" className="text-[#2A2820] underline font-black">Authorize Session</a>
+                        Already registered? <a onClick={() => setcurrentState('SignIn')} className="text-[#2A2820] underline font-black hover:cursor-pointer">Authorize Session</a>
                     </p>
                 </div>
             </div>

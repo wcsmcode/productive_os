@@ -6,7 +6,7 @@ const Taskbar = () => {
   const date = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }).toUpperCase();
 
   return (
-    <div className="h-10 bg-[#f5f2e7] border-t border-black flex items-center justify-between px-2 font-mono">
+    <div className="h-10 bg-[#bab395] border-t border-black flex items-center justify-between px-2 font-mono">
       <div className="flex items-center gap-1 h-full">
         {/* Nút Start sử dụng Items.Dropdown */}
         <Items.Dropdown 

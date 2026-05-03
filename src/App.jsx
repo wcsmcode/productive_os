@@ -3,15 +3,32 @@ import Desktop from './components/Desktop';
 import Taskbar from './components/Taskbar';
 import SettingsApp from './components/app/Settings';
 import { motion } from 'framer-motion';
+import Tracking from './components/app/Tracking/Tracking';
+//popups
+import AddTaskPopup from './components/app/Tracking/TrackingAddTask';
 
 function App() {
+  
   const [windows, setWindows] = useState([]); // Mảng chứa các app đang mở
   const [topZ, setTopZ] = useState(100);      // Biến để quản lý z-index
-  const openApp = (type) => {
+
+  const openApp = (type,status) => {
+    const isOpened = windows.find(win => win.type === type);
+    if (isOpened) {
+      focusWindow(isOpened.id);
+      return;
+    }
+    const openStatus = status || true ; // Mặc định là 'default' nếu không truyền
+    if (openStatus === false){
+      closeWindow(windows.find(win => win.type === type).id);
+      return;
+    }
     const defaultSizes = {
       settings: { w: 900, h: 650 },
       notes: { w: 400, h: 500 },
-      tracking: { w: 600, h: 450 }
+      tracking: { w: 1040, h: 670 },
+      //
+      addtaskpopup: { w: 300, h: 350 }
     };
     const id = `${type}-${Date.now()}`; // Tạo ID duy nhất (nhân bản thoải mái)
     const newWin = { 
@@ -19,7 +36,7 @@ function App() {
       type,
       zIndex: topZ + 1,
       width: defaultSizes[type].w,
-      height: defaultSizes[type].h 
+      height: defaultSizes[type].h,
     };
     
     setWindows([...windows, newWin]); // Thêm vào danh sách chứ không ghi đè
@@ -39,7 +56,7 @@ function App() {
   };
   return (
     <div className="h-screen w-full bg-[#dcdcdc] flex flex-col select-none overflow-hidden text-black font-mono">
-      <main className="flex-1 relative">
+      <main className="flex-1 relative bg-[#D8D1B4]">
         {/* Màn hình Desktop */}
         <Desktop onOpenApp={openApp} />
         
@@ -62,7 +79,8 @@ function App() {
             {/* Content - Gọi app tương ứng */}
             <div className="p-4 overflow-auto bg-white">
               {win.type === 'settings' && <SettingsApp />}
-              {win.type === 'notes' && <div className="text-xs italic underline">Notes Content...</div>}
+              {win.type === 'tracking' && <Tracking onOpenApp={openApp} />}
+              {win.type === 'addtaskpopup' && <AddTaskPopup onOpenApp={openApp} />}
             </div>
           </motion.div>
         ))}
