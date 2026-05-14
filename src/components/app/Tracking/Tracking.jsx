@@ -4,29 +4,76 @@ import { supabase } from '/src/lib/supabase.js';
 import {AuthService} from '/src/lib/supabase.js';
 import {useAuthStore, useTrackingStore} from '/src/lib/store.js';
 import {SkipForward,Settings,RefreshCcw, Play, X} from 'lucide-react';
+import { div } from 'framer-motion/client';
 
-const Tracking = ({ activeTaskId, activeTaskName, onOpenApp, handleSelectTask }) => {
-
+const Tracking = ({onOpenApp}) => {
+    //User
+    const [countSkip, setcountSkip] = useState(0);
     // ==== STATES & STORES ====
     const [UserProfile, setUserProfile] = useState({ name: 'Solo Architect', avatar: 'S' });
     const [timeLeft, setTimeLeft] = useState(25 * 60);
     const [isActive, setIsActive] = useState(false);
-    
     const { user } = useAuthStore(); 
     // Lấy state và action từ store
-    const { tasks, addTask, setTasks } = useTrackingStore();
+    const { tasks, setTasks, addTask } = useTrackingStore();
+    const [activeTask, setActiveTask] = useState({ id: null, title: "Select a task to start" });
 
     const [loading, setLoading] = useState(true);
-    const alarmRef = useRef(new Audio('/assets/sfx/alarm1.mp3'));
+    const alarmRef = useRef(new Audio('/sfx/alarm.mp3')); // Đảm bảo có file âm thanh này trong public/sfx/
+    // hover
+    const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, taskId: null });
+
+    const handleContextMenu = (e, task) => {
+        e.preventDefault(); // Ngăn menu mặc định của trình duyệt hiện lên
+        
+        // Tính toán tọa độ để panel hiện ngay đầu con trỏ
+        setContextMenu({
+            visible: true,
+            x: e.pageX,
+            y: e.pageY,
+            taskId: task.id
+        });
+    };
+
+    const closeContextMenu = () => setContextMenu({ ...contextMenu, visible: false });
+
+    // Đóng menu khi click ra ngoài
+    useEffect(() => {
+        window.addEventListener('click', closeContextMenu);
+        return () => window.removeEventListener('click', closeContextMenu);
+    }, []);
+
+    // core logic 
     useEffect(() => {
         const fetchProfile = async () => {
+            // 1. Lấy profile cơ bản
             const profile = await AuthService.getCurrentUser();
             if (profile) {
                 setUserProfile({
                     name: profile.name || 'User',
                     avatar: (profile.name?.[0] || 'U').toUpperCase(),
-                    userEmail: profile.userEmail
+                    userEmail: profile.userEmail,
                 });
+            }
+
+            // 2. Lấy session hiện tại để lấy ID an toàn
+            const { data: authData } = await supabase.auth.getUser();
+            const currentUser = authData?.user; // Dùng optional chaining để tránh lỗi
+
+            if (currentUser) {
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('skippedSession')
+                    .eq('id', currentUser.id) // Dùng currentUser.id thay vì user.id
+                    .single();
+
+                if (!error && data) {
+                    setcountSkip(data.skippedSession); 
+                } else {
+                    console.error("Lỗi fetch profiles:", error?.message);
+                }
+            } else {
+                console.warn("Chưa tìm thấy user session, Architect!");
             }
         };
 
@@ -40,6 +87,7 @@ const Tracking = ({ activeTaskId, activeTaskName, onOpenApp, handleSelectTask })
             if (!error && data) setTasks(data); // Đồng bộ vào Zustand Store
             setLoading(false);
         };
+
 
         fetchProfile();
         fetchTasksFromDB();
@@ -60,26 +108,34 @@ const Tracking = ({ activeTaskId, activeTaskName, onOpenApp, handleSelectTask })
 
     // --- ACTIONS ---
     const handleTimerComplete = async () => {
+        window.alert('complete')
         setIsActive(false);
         alarmRef.current.volume = 0.2;
         alarmRef.current.play();
 
-        if (activeTaskId && user) {
+        if (activeTask.id && user) {
             await supabase
                 .from('pomodoro_cycles')
                 .update({ status: 'completed', completed_at: new Date().toISOString() })
-                .eq('task_id', activeTaskId);
+                .eq('id', activeTask.id);
         }
     };
 
     const toggleTimer = () => {
         // QUICK START LOGIC: Nếu không có task mà bấm Play
-        if (!isActive && !activeTaskId) {
+        if (!isActive && !activeTask.id) {
             const quickId = self.crypto.randomUUID();
             const quickTitle = `Quick Session ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
             
             // Tự động tạo task "vô danh" và đưa vào luồng làm việc
-            addTask(quickTitle, user?.id, 25, quickId); 
+            addTask({
+                id: quickId,
+                title: quickTitle,
+                user_id: user?.id,
+                duration_minutes: 25,
+                status: 'pending',
+                created_at: new Date().toISOString()
+            });
             handleSelectTask({ id: quickId, title: quickTitle }); 
         }
         setIsActive(!isActive);
@@ -88,23 +144,91 @@ const Tracking = ({ activeTaskId, activeTaskName, onOpenApp, handleSelectTask })
     const resetTimer = () => {
         if (window.confirm("Mày có chắc muốn reset lại đồng hồ không?")) {
             setIsActive(false);
-            setTimeLeft(25 * 60);
+
+            // Tìm cái task có ID trùng với task đang active
+            const currentTask = tasks.find(t => t.id === activeTask.id);
+
+            if (currentTask) {
+                // Nếu tìm thấy, lấy duration của nó nhân 60 giây
+                setTimeLeft(currentTask.duration_minutes * 60);
+            } else {
+                // Nếu không thấy (hoặc chưa chọn task), về mặc định 25p
+                setTimeLeft(25 * 60);
+            }
         }
     };
 
-    const skipSession = () => {
+    const skipSession = async () => {
         if (window.confirm("Bỏ qua phiên này nhé?")) {
-            handleTimerComplete();
+            setIsActive(false);
+            const nextCount = countSkip + 1;
+            setcountSkip(nextCount);
             setTimeLeft(25 * 60);
+
+            // Lấy lại user một lần nữa cho chắc
+            const { data: { user: currentUser } } = await supabase.auth.getUser();
+
+            if (currentUser) {
+                const { error } = await supabase
+                    .from('profiles')
+                    .update({ skippedSession: nextCount }) // Cột trong ảnh là skippedSession
+                    .eq('id', currentUser.id);
+                
+                if (error) console.error("DB lỗi:", error.message);
+                else console.log("DB đã nhận hàng!");
+            } else {
+                console.error("Lỗi: Không tìm thấy user để update DB");
+            }
+            handleTimerComplete();
         }
     };
 
     const formatTime = () => {
+        
         const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
         const secs = (timeLeft % 60).toString().padStart(2, '0');
         return `${mins}:${secs}`;
     };
 
+    const handleSelectTask = (task) => {
+        setActiveTask({
+            id: task.id || task.task_id,
+            title: task.title
+        });
+        setTimeLeft(activeTask.id?  task.duration_minutes * 60 : 25*60);
+        setIsActive(false);
+    };
+
+    // Danger zone
+
+    const handleDeleteTask = async (taskId) => {
+        if (!window.confirm("Xóa bản ghi này khỏi hệ thống, Architect?")) return;
+
+        try {
+            // 2. Xóa trên Database (Supabase)
+            const { error } = await supabase
+                .from('pomodoro_cycles')
+                .delete()
+                .eq('id', taskId);
+
+            if (error) throw error;
+
+            // 3. Xóa trên UI thông qua Store
+            useTrackingStore.getState().fetchTasks()
+
+            // 4. Nếu xóa trúng task đang chọn thì reset hiển thị chính
+            if (activeTask.id === taskId) {
+                handleSelectTask({ id: null, title: "Select a task to start" });
+            }
+            setTimeLeft(25 * 60);
+            // 5. Đóng context menu sau khi xóa xong
+            setContextMenu({ ...contextMenu, visible: false });
+
+        } catch (error) {
+            console.error("Lỗi hệ thống khi xóa:", error.message);
+            alert("Không thể xóa task. Kiểm tra lại kết nối!");
+        }
+    };
 
     return (
         <div className="flex h-[600px] w-[1000px] bg-[#D8D1B4] text-[#2A2820] border-2 border-[#2A2820] rounded-xl overflow-hidden shadow-[8px_8px_0px_0px_rgba(42,40,32,0.1)] font-sans">   
@@ -136,15 +260,16 @@ const Tracking = ({ activeTaskId, activeTaskName, onOpenApp, handleSelectTask })
                                 tasks.map((task) => (
                                     <div 
                                         key={task.id}
+                                        onContextMenu={(e) => handleContextMenu(e, task)}
                                         onClick={() => handleSelectTask(task)}
                                         className={`task-item group flex items-center gap-2 p-2.5 rounded-lg cursor-pointer transition-all active:scale-[0.98] border 
-                                            ${activeTaskId === task.id 
+                                            ${activeTask.id === task.id 
                                                 ? 'bg-[#2A2820] text-white border-[#2A2820]' 
                                                 : 'bg-white/20 border-transparent hover:border-[#2A2820]/30'
                                             } ${task.status === 'completed' ? 'opacity-50' : 'opacity-100'}`}
                                     >
                                         <div className={`w-2 h-2 rounded-full border border-[#2A2820] 
-                                            ${activeTaskId === task.id ? 'bg-[#4A5D4E] border-white' : 'group-hover:bg-[#4A5D4E]'}`}>
+                                            ${activeTask.id === task.id ? 'bg-[#4A5D4E] border-white' : 'group-hover:bg-[#4A5D4E]'}`}>
                                         </div>
                                         <span className="text-[10px] font-bold truncate uppercase tracking-tight">
                                             {task.title}
@@ -152,6 +277,7 @@ const Tracking = ({ activeTaskId, activeTaskName, onOpenApp, handleSelectTask })
                                         {task.status === 'completed' && (
                                             <span className="ml-auto text-[8px] font-black opacity-40">[DONE]</span>
                                         )}
+                                        
                                     </div>
                                 ))
                             ) : (
@@ -173,12 +299,9 @@ const Tracking = ({ activeTaskId, activeTaskName, onOpenApp, handleSelectTask })
             <div className="flex-grow flex relative overflow-hidden">
                 <main id="main-content" className="flex-grow p-12 flex flex-col bg-[#F4F1E1]/30 relative">
                     <header className="mb-8">
-                        <div className="flex items-center gap-2 mb-2 opacity-30">
-                            <span className="text-[9px] font-black uppercase tracking-[0.3em]">Notion Lite</span>
-                            <span className="text-[9px]">/</span>
-                            <span id="breadcrumb-date" className="text-[9px] font-bold uppercase">MAR 21, 2026</span>
-                        </div>
-                        <h1 id="active-task-title" className="text-4xl font-black tracking-tighter uppercase italic leading-none">Select a task to start</h1>
+                        <h1 className="text-4xl font-black tracking-tighter uppercase italic leading-[0.9] break-words line-clamp-2 max-w-full">
+                            {activeTask.title}
+                        </h1>
                     </header>
 
                     <section id="task-detail-view" className="flex-grow flex flex-col space-y-8 overflow-y-auto pr-2 custom-scrollbar">          
@@ -202,11 +325,13 @@ const Tracking = ({ activeTaskId, activeTaskName, onOpenApp, handleSelectTask })
                 <aside className="w-72 bg-[#E2E2E2] p-8 flex flex-col border-l-2 border-[#2A2820]/10 relative">
                     <div id="pomo-header" className="mb-10 text-center">
                         <p id="timer-status-text" className="text-[9px] font-black uppercase opacity-40 tracking-[0.2em] mb-1">Action / Timer</p>
-                        <div id="timer-set-for" className="text-[8px] font-bold text-[#4A5D4E] uppercase hidden">Timer set for: <span id="target-task-name">---</span></div>
+                        <div id="timer-set-for" className="text-[8px] font-bold text-[#4A5D4E] uppercase hidden">
+                            Timer set for: {activeTask.title}
+                        </div>
                     </div>
                     
                     <div className="flex-grow flex flex-col items-center justify-center -mt-10">
-                        <div id="main-timer-display" className="text-[85px] font-black tracking-tighter leading-none mb-12 tabular-nums">
+                        <div id="main-timer-display" className="text-[85px] font-black tracking-tighter leading-none mb-12 tabular-nums min-w-[240px] text-center">
                             {formatTime()}
                         </div>
                         
@@ -310,10 +435,33 @@ const Tracking = ({ activeTaskId, activeTaskName, onOpenApp, handleSelectTask })
                     </div>
                 </div>
             </div>
+            {/* ==== FLOATING CONTEXT MENU ==== */}
+            {contextMenu.visible && (
+                <div 
+                    className="fixed z-[1000] bg-[#2A2820] border border-white/10 rounded-lg shadow-2xl py-1.5 w-36 overflow-hidden animate-in fade-in zoom-in duration-100"
+                    style={{ top: contextMenu.y, left: contextMenu.x }}
+                >
+                    <div className="px-3 py-1 border-b border-white/5 mb-1">
+                        <p className="text-[7px] font-black opacity-40 uppercase tracking-widest">Task Action</p>
+                    </div>
+                    
+                    <button 
+                        onClick={() => { /* Logic Edit */ }}
+                        className="w-full text-left px-3 py-2 text-[10px] font-bold text-[#D8D1B4] hover:bg-white/10 transition-colors uppercase"
+                    >
+                        Rename Task
+                    </button>
+                    
+                    <button 
+                        onClick={() => handleDeleteTask(contextMenu.taskId)}
+                        className="w-full text-left px-3 py-2 text-[10px] font-bold text-red-400 hover:bg-red-500/20 transition-colors uppercase"
+                    >
+                        Delete Task
+                    </button>
+                </div>
+            )}
         </div>
-
-    );
-    
+    );   
 };
 
 

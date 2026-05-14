@@ -79,7 +79,7 @@ function App() {
             {/* Content - Gọi app tương ứng */}
             <div className="p-4 overflow-auto bg-white">
               {win.type === 'settings' && <SettingsApp />}
-              {win.type === 'tracking' && <Tracking onOpenApp={openApp} />}
+              {win.type === 'tracking' && <Tracking onOpenApp={openApp}/>}
               {win.type === 'addtaskpopup' && <AddTaskPopup onOpenApp={openApp} />}
             </div>
           </motion.div>

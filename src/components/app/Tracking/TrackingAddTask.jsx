@@ -33,37 +33,36 @@ const AddTaskPopup = ({onOpenApp}) => {
         getFullProfile();
     }, []);
 
+    // TRONG handleExecute của AddTaskPopup.jsx
     const handleExecute = async () => {
         if (!title.trim()) return alert("Task name is mandatory.");
+        if (!profile?.id) return alert('User profile not loaded yet. Please try again in a moment.');
 
         const finalTime = SetTime && !isNaN(SetTime) ? parseInt(SetTime) : 25;
 
-        // Logic ghi dữ liệu vào bảng 'tasks' của Supabase
+        const taskPayload = {
+            title: title.trim(),
+            user_id: profile.id,
+            duration_minutes: finalTime,
+            status: 'pending'
+        };
+
         const { data, error } = await supabase
-            .from('pomodoro_cycles') // Tên bảng mày đã tạo trên Supabase
-            .insert([
-                { 
-                    title: title, 
-                    task_id: self.crypto.randomUUID(), // Tạm thời dùng timestamp làm ID, sau này có thể đổi sang UUID hoặc ID từ DB
-                    user_id: profile?.id, // ID lấy từ profile đã fetch ở useEffect
-                    duration_minutes: finalTime, 
-                    status: 'pending',
-                    created_at: new Date().toISOString()
-                },
-            ])
-            .select(); // Trả về dữ liệu vừa insert để cập nhật UI ngay lập tức
+            .from('pomodoro_cycles')
+            .insert([taskPayload])
+            .select()
+            .single();
 
         if (error) {
-            console.error("Lỗi ghi dữ liệu:", error.message);
+            console.error('Failed to insert pomodoro cycle:', error);
+            alert(error.message || 'Failed to create task. Please try again.');
             return;
         }
 
-        // Bơm dữ liệu vào store (Nhớ update hàm addTask trong store.js để nhận thêm tham số này)[cite: 5, 11]
-        addTask(title, profile?.id, finalTime, task_id); 
-        
+        addTask(data);
         setTitle('');
         setSetTime('');
-        onOpenApp('tracking', false); // Close window
+        onOpenApp('tracking', false);
     };
 
     return (
