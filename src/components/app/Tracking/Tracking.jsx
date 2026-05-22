@@ -3,12 +3,13 @@ import Items from '../../Items.jsx';
 import { supabase } from '/src/lib/supabase.js';
 import {AuthService} from '/src/lib/supabase.js';
 import {useAuthStore, useTrackingStore} from '/src/lib/store.js';
-import {SkipForward,Settings,RefreshCcw, Play, X} from 'lucide-react';
+import {SkipForward,Settings,RefreshCcw, Play, X, Pause} from 'lucide-react';
 import { div } from 'framer-motion/client';
 
 const Tracking = ({onOpenApp}) => {
     //User
     const [countSkip, setcountSkip] = useState(0);
+    const [countFinish, setCountFinish] = useState(0);
     // ==== STATES & STORES ====
     const [UserProfile, setUserProfile] = useState({ name: 'Solo Architect', avatar: 'S' });
     const [timeLeft, setTimeLeft] = useState(25 * 60);
@@ -19,7 +20,9 @@ const Tracking = ({onOpenApp}) => {
     const [activeTask, setActiveTask] = useState({ id: null, title: "Select a task to start" });
 
     const [loading, setLoading] = useState(true);
-    const alarmRef = useRef(new Audio('/sfx/alarm.mp3')); // Đảm bảo có file âm thanh này trong public/sfx/
+    const alarmRef = useRef(null);
+    const timerRef = useRef(null);
+    const endTimeRef = useRef(null);
     // hover
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, taskId: null });
 
@@ -37,10 +40,115 @@ const Tracking = ({onOpenApp}) => {
 
     const closeContextMenu = () => setContextMenu({ ...contextMenu, visible: false });
 
+
+    // IMPORTANT: SUPABASE REALTIME
+    useEffect(() => {
+        let channel = null;
+        let isMounted = true;
+
+        const initRealtime = async () => {
+            let activeUserId = user?.id;
+            if (!activeUserId) {
+                const { data: authData } = await supabase.auth.getUser();
+                activeUserId = authData?.user?.id;
+            }
+            if (!activeUserId || !isMounted) return;
+
+            console.log("Realtime started on unified channel for user:", activeUserId);
+
+            // 1. Khởi tạo một Channel hợp nhất duy nhất
+            channel = supabase
+                .channel('schema-db-changes') 
+                
+                // ─── SỰ KIỆN 1: THEO DÕI BẢNG PROFILES (STATS CHÍNH) ───
+                .on(
+                    'postgres_changes', 
+                    {
+                        event: 'UPDATE', 
+                        schema: 'public', 
+                        table: 'profiles', 
+                        filter: `id=eq.${activeUserId}`
+                    },
+                    (payload) => {
+                        console.log('🔔 [Realtime Profiles]:', payload);
+                        
+                        const newData = payload.new;
+                        if (!newData) return;
+
+                        // Coerce undefined/null values to 0 to keep state deterministic
+                        const updatedFinished = newData.finishedTasks ?? 0;
+                        const updatedSkipped = newData.skippedSession ?? 0;
+
+                        setCountFinish(updatedFinished);
+                        setcountSkip(updatedSkipped);
+                    }
+                )
+                
+                // ─── SỰ KIỆN 2: THEO DÕI BẢNG POMODORO_CYCLES (TASKS LIST) ───
+                .on(
+                    'postgres_changes',
+                    {
+                        event: '*',
+                        schema: 'public',
+                        table: 'pomodoro_cycles',
+                        filter: `user_id=eq.${activeUserId}`
+                    },
+                    (payload) => {
+                        console.log('🔔 [Realtime Tasks]:', payload);
+                        
+                        const newData = payload.new;
+                        
+                        if (!newData) {
+                            console.log('🗑️ Một tác vụ vừa bị xóa hoàn toàn khỏi hệ thống.');
+                            return; 
+                        }
+
+                        if (newData.status === 'completed') {
+                            setLoading(true);
+                            useTrackingStore.getState().fetchTasks()
+                            setTimeout(() => setLoading(false), 500);
+                        }
+                    }
+                )
+                .subscribe(); // 3. Bật công tắc kích hoạt đường truyền công nghệ WebSocket
+        };
+
+        initRealtime();
+
+        return () => {
+            isMounted = false;
+            if (channel) {
+                console.log("🔌 [Backend] Đã đóng đường truyền Realtime Channel.");
+                supabase.removeChannel(channel);
+            }
+        };
+    }, [user?.id]); // Chỉ phụ thuộc vào ID duy nhất của user
+
+
+
     // Đóng menu khi click ra ngoài
     useEffect(() => {
         window.addEventListener('click', closeContextMenu);
         return () => window.removeEventListener('click', closeContextMenu);
+    }, []);
+
+    useEffect(() => {
+        const audioUrl = `${import.meta.env.BASE_URL}sfx/alarm1.mp3`;
+        const audio = new Audio(audioUrl);
+        audio.volume = 0.2;
+        audio.preload = 'auto';
+
+        audio.addEventListener('error', (event) => {
+            console.error('Alarm audio load error:', event);
+            console.error('Alarm src:', audio.src);
+            console.error('canPlayType:', audio.canPlayType('audio/mpeg'));
+        });
+
+        alarmRef.current = audio;
+        return () => {
+            audio.pause();
+            audio.src = '';
+        };
     }, []);
 
     // core logic 
@@ -63,12 +171,24 @@ const Tracking = ({onOpenApp}) => {
             if (currentUser) {
                 const { data, error } = await supabase
                     .from('profiles')
-                    .select('skippedSession')
+                    .select('skippedSession, finishedTasks')
                     .eq('id', currentUser.id) // Dùng currentUser.id thay vì user.id
                     .single();
 
                 if (!error && data) {
-                    setcountSkip(data.skippedSession); 
+                    const finishedVal = data?.finishedTasks ?? 0;
+                    const skippedVal = data?.skippedSession ?? 0;
+
+                    setcountSkip(skippedVal);
+                    setCountFinish(finishedVal);
+
+                    // debug log with coerced values to avoid showing `undefined`
+                    console.log('profile load', {
+                        finishedTasks: finishedVal,
+                        skippedSession: skippedVal,
+                        stateCountFinish: finishedVal,
+                        stateCountSkip: skippedVal,
+                    });
                 } else {
                     console.error("Lỗi fetch profiles:", error?.message);
                 }
@@ -76,7 +196,7 @@ const Tracking = ({onOpenApp}) => {
                 console.warn("Chưa tìm thấy user session, Architect!");
             }
         };
-
+        
         const fetchTasksFromDB = async () => {
             setLoading(true);
             const { data, error } = await supabase
@@ -95,29 +215,113 @@ const Tracking = ({onOpenApp}) => {
 
     // --- TIMER CORE ---
     useEffect(() => {
-        let interval = null;
-        if (isActive && timeLeft > 0) {
-            interval = setInterval(() => {
-                setTimeLeft((prev) => prev - 1);
-            }, 1000);
-        } else if (timeLeft === 0) {
-            handleTimerComplete();
+        if (!isActive) {
+            endTimeRef.current = null;
+            return;
         }
-        return () => clearInterval(interval);
-    }, [isActive, timeLeft]);
+
+        if (!endTimeRef.current) {
+            endTimeRef.current = Date.now() + timeLeft * 1000;
+        }
+
+        const tick = () => {
+            const remainingMs = Math.max(0, endTimeRef.current - Date.now());
+            const nextTimeLeft = Math.ceil(remainingMs / 1000);
+
+            setTimeLeft((prev) => {
+                if (prev === nextTimeLeft) return prev;
+                return nextTimeLeft;
+            });
+
+            if (remainingMs <= 0) {
+                endTimeRef.current = null;
+                setIsActive(false);
+                handleTimerComplete();
+                return;
+            }
+
+            timerRef.current = window.setTimeout(tick, 250);
+        };
+
+        timerRef.current = window.setTimeout(tick, 250);
+        return () => {
+            if (timerRef.current) {
+                window.clearTimeout(timerRef.current);
+            }
+        };
+    }, [isActive]);
 
     // --- ACTIONS ---
     const handleTimerComplete = async () => {
-        window.alert('complete')
         setIsActive(false);
-        alarmRef.current.volume = 0.2;
-        alarmRef.current.play();
 
-        if (activeTask.id && user) {
-            await supabase
-                .from('pomodoro_cycles')
-                .update({ status: 'completed', completed_at: new Date().toISOString() })
-                .eq('id', activeTask.id);
+        if (alarmRef.current) {
+            alarmRef.current.volume = 0.2;
+            alarmRef.current.play().catch((error) => {
+                console.error('Alarm playback failed:', error);
+            });
+        }
+
+        // --- ĐOẠN ĐÃ SỬA: TÁCH BIỆT ĐỂ BẢO VỆ DATA ---
+        const { data: authData } = await supabase.auth.getUser();
+        const activeUser = authData?.user || user; // Nếu lấy từ DB không kịp thì fallback về store
+        // 1. Kiểm tra User trước (Điều kiện bắt buộc để đụng vào DB)
+        if (!activeUser) {
+            console.error('🚨 [Backend] Không tìm thấy User session. Hủy toàn bộ tiến trình lưu DB.');
+            return;
+        }
+
+        // 2. Cập nhật UI trước cho mượt
+        const currentCount = Number.isFinite(countFinish) ? countFinish : 0;
+        const nextCount = currentCount + 1;
+        setCountFinish(nextCount);
+        console.log('session updated ->', nextCount, '(previous countFinish:', countFinish, ')');
+        
+        try {
+            // Tạo mảng chứa các Promise cần chạy
+            const promises = [];
+
+            // Nếu có gắn với Task cụ thể -> Thêm lệnh cập nhật chu kỳ vào hàng đợi
+            if (activeTask && activeTask.id) {
+                console.log(`[Backend] Ghi nhận hoàn thành cho task ID: ${activeTask.id}`);
+                promises.push(
+                    supabase
+                        .from('pomodoro_cycles')
+                        .update({ status: 'completed', completed_at: new Date().toISOString() })
+                        .eq('id', activeTask.id)
+                );
+            } else {
+                console.warn('⚠️ [Backend] Chạy Timer tự do (Không có Task ID). Bỏ qua update pomodoro_cycles.');
+            }
+
+            // Luôn luôn thêm lệnh cập nhật Profile của User
+            promises.push(
+                supabase
+                    .from('profiles')
+                    .update({ finishedTasks: nextCount })
+                    .eq('id', activeUser.id)
+            );
+
+            // Chạy song song các lệnh hợp lệ
+            const results = await Promise.all(promises);
+
+            // Kiểm tra xem có lệnh nào bị lỗi không
+            results.forEach((res, index) => {
+                if (res.error) throw new Error(`Lệnh thứ ${index + 1} thất bại: ${res.error.message}`);
+            });
+
+            console.log(`Updated DB successfully for user ${activeUser.id}. Total finished tasks: ${nextCount}`);
+
+            // Xóa task cũ khỏi danh sách hoạt động nếu có ID
+            // if (activeTask && activeTask.id) {
+            //     handleDeleteTask(activeTask.id);
+            // }
+
+        } catch (dbError) {
+            // Hoàn tác (Rollback) UI nếu lỗi rớt mạng/DB sập
+            setCountFinish(Number.isFinite(countFinish) ? countFinish : 0);
+            console.error(dbError.message);
+            alert('An error occurred');
         }
     };
 
@@ -161,25 +365,41 @@ const Tracking = ({onOpenApp}) => {
     const skipSession = async () => {
         if (window.confirm("Bỏ qua phiên này nhé?")) {
             setIsActive(false);
+            console.log('prev: ',countSkip);
             const nextCount = countSkip + 1;
             setcountSkip(nextCount);
+            console.log('session skipped', countSkip);
             setTimeLeft(25 * 60);
 
             // Lấy lại user một lần nữa cho chắc
             const { data: { user: currentUser } } = await supabase.auth.getUser();
 
+
             if (currentUser) {
-                const { error } = await supabase
-                    .from('profiles')
-                    .update({ skippedSession: nextCount }) // Cột trong ảnh là skippedSession
-                    .eq('id', currentUser.id);
-                
-                if (error) console.error("DB lỗi:", error.message);
-                else console.log("DB đã nhận hàng!");
+                try{
+                    const promise = [
+                        supabase
+                            .from('profiles')
+                            .update({ skippedSession: nextCount }) // Cột trong ảnh là skippedSession
+                            .eq('id', currentUser.id),
+                        supabase
+                            .from('pomodoro_cycles')
+                            .update({ status: 'completed', completed_at: new Date().toISOString() })
+                            .eq('id', activeTask.id)
+                    ]
+
+                    const results = await Promise.all(promise);
+                    results.forEach((res, index) => {
+                        if (res.error) throw new Error(`Lệnh thứ ${index + 1} thất bại: ${res.error.message}`);
+                    });
+
+                    console.log("✅ Cập nhật cả 2 bảng thành công!");
+                }catch(error){
+                    console.error(error.message);
+                }
             } else {
                 console.error("Lỗi: Không tìm thấy user để update DB");
             }
-            handleTimerComplete();
         }
     };
 
@@ -195,7 +415,7 @@ const Tracking = ({onOpenApp}) => {
             id: task.id || task.task_id,
             title: task.title
         });
-        setTimeLeft(activeTask.id?  task.duration_minutes * 60 : 25*60);
+        setTimeLeft(task.duration_minutes ? task.duration_minutes * 60 : 25 * 60);
         setIsActive(false);
     };
 
@@ -246,7 +466,9 @@ const Tracking = ({onOpenApp}) => {
                         <button id="tracking-today-btn" className="w-full flex justify-between items-center px-3 py-2 bg-[#2A2820] text-[#D8D1B4] rounded-lg text-[10px] font-bold uppercase tracking-widest">
                             Today <span className="opacity-50">3</span>
                         </button>
-                        <button id="tracking-stats-btn" className="w-full text-left px-3 py-2 hover:bg-black/5 rounded-lg text-[10px] font-bold uppercase tracking-widest opacity-40 transition-all">
+                        <button 
+                            onClick={() => onOpenApp('addtrackingstats')}
+                            className="w-full text-left px-3 py-2 hover:bg-black/5 rounded-lg text-[10px] font-bold uppercase tracking-widest opacity-40 transition-all">
                             Stats
                         </button>
                     </div>
@@ -261,7 +483,10 @@ const Tracking = ({onOpenApp}) => {
                                     <div 
                                         key={task.id}
                                         onContextMenu={(e) => handleContextMenu(e, task)}
-                                        onClick={() => handleSelectTask(task)}
+                                        onClick={() => {
+                                            if (task.status === 'completed') return; // Chặn đứng chuột trái tại đây!
+                                            handleSelectTask(task);
+                                        }}
                                         className={`task-item group flex items-center gap-2 p-2.5 rounded-lg cursor-pointer transition-all active:scale-[0.98] border 
                                             ${activeTask.id === task.id 
                                                 ? 'bg-[#2A2820] text-white border-[#2A2820]' 
@@ -275,7 +500,7 @@ const Tracking = ({onOpenApp}) => {
                                             {task.title}
                                         </span>
                                         {task.status === 'completed' && (
-                                            <span className="ml-auto text-[8px] font-black opacity-40">[DONE]</span>
+                                            <span className="ml-auto text-[8px] font-black opacity-40 ">[DONE]</span>
                                         )}
                                         
                                     </div>
@@ -336,8 +561,17 @@ const Tracking = ({onOpenApp}) => {
                         </div>
                         
                         <div className="w-full space-y-4">
-                            <button id="pomo-play-btn" onClick={()=>toggleTimer()} className="w-full py-5 bg-[#2A2820] text-white rounded-2xl shadow-[0px_4px_0px_0px_rgba(0,0,0,0.2)] active:shadow-none active:translate-y-[4px] transition-all flex items-center justify-center group">
-                                <Play className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                            <button 
+                                id="pomo-play-btn" 
+                                onClick={() => toggleTimer()} 
+                                className="w-full py-5 bg-[#2A2820] text-white rounded-2xl shadow-[0px_4px_0px_0px_rgba(0,0,0,0.2)] active:shadow-none active:translate-y-[4px] transition-all flex items-center justify-center group"
+                            >
+                                {/* ĐỔI ICON ĐỘNG DỰA VÀO STATE ISACTIVE */}
+                                {isActive ? (
+                                    <Pause className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                                ) : (
+                                    <Play className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                                )}
                             </button>
                             <div className="grid grid-cols-3 gap-3">
                                 <button id="tracking-timer-skip-btn" onClick={()=>skipSession()} className="py-4 border-2 border-[#2A2820] rounded-2xl flex items-center justify-center hover:bg-white active:bg-black/5 transition-all group" title="Skip Session">
@@ -375,65 +609,8 @@ const Tracking = ({onOpenApp}) => {
                             </div>
                         </div>
                     </div>
-                    <div id="pomo-settings-overlay" className="absolute inset-0 bg-[#E2E2E2] p-8 flex flex-col translate-y-full transition-transform duration-300 ease-in-out z-10">
-                        <div className="text-center mb-8">
-                            <p className="text-[9px] font-black uppercase opacity-40 tracking-[0.2em]">Configuration</p>
-                        </div>
-
-                        <div className="space-y-6 flex-grow">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase opacity-60 ml-1">Focus (Minutes)</label>
-                                <input type="number" value="25" min="1" max="90" 
-                                    className="w-full bg-white/50 border-2 border-[#2A2820] rounded-xl px-4 py-3 font-black text-xl focus:outline-none focus:bg-white transition-all"/>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase opacity-60 ml-1">Break (Minutes)</label>
-                                <input type="number" value="5" min="1" max="30" 
-                                    className="w-full bg-white/50 border-2 border-[#2A2820]/30 rounded-xl px-4 py-3 font-black text-xl focus:outline-none focus:bg-white transition-all"/>
-                            </div>
-                        </div>
-
-                        <div className="space-y-3 mt-auto">
-                            <button id="pomo-save-settings" className="w-full py-4 bg-[#2A2820] text-white rounded-xl font-black uppercase text-[10px] tracking-widest shadow-lg hover:bg-[#4A5D4E] transition-all">Save Changes</button>
-                            <button id="pomo-close-settings" className="w-full py-4 border-2 border-[#2A2820] rounded-xl font-black uppercase text-[10px] tracking-widest opacity-60 hover:opacity-100 transition-all">Cancel</button>
-                        </div>
-                    </div>
-
                     <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/asfalt-dark.png')]"></div>
                 </aside>
-
-                <div id="stats-overlay" className="absolute inset-0 bg-[#E2E2E2] z-20 translate-x-full transition-transform duration-500 ease-in-out flex flex-col p-12">
-                    <div className="flex justify-between items-start mb-12">
-                        <div>
-                            <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mb-2">System / Analytics</p>
-                            <h2 className="text-4xl font-black italic uppercase tracking-tighter">Performance Stats</h2>
-                        </div>
-                        <button className="p-4 border-2 border-[#2A2820] rounded-2xl hover:bg-white transition-all">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
-                        </button>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-8 flex-grow">
-                        <div className="border-2 border-[#2A2820] rounded-3xl p-8 flex flex-col justify-center bg-white/40">
-                            <span className="text-[80px] font-black leading-none italic">12</span>
-                            <span className="text-[10px] font-black uppercase opacity-40 tracking-widest mt-2">Tasks Completed Today</span>
-                        </div>
-                        <div className="border-2 border-[#2A2820] rounded-3xl p-8 flex flex-col justify-center bg-[#2A2820] text-[#E2E2E2]">
-                            <span className="text-[80px] font-black leading-none italic">08</span>
-                            <span className="text-[10px] font-black uppercase opacity-40 tracking-widest mt-2">Focus Sessions (Pomo)</span>
-                        </div>
-                        <div className="col-span-2 border-2 border-[#2A2820] rounded-3xl p-8 bg-white/20">
-                            <p className="text-[10px] font-black uppercase opacity-40 mb-6">Efficiency Graph</p>
-                            <div className="h-32 w-full flex items-end gap-2">
-                                <div className="flex-1 bg-[#2A2820]/10 h-[40%] rounded-t-sm"></div>
-                                <div className="flex-1 bg-[#2A2820]/20 h-[60%] rounded-t-sm"></div>
-                                <div className="flex-1 bg-[#2A2820]/40 h-[90%] rounded-t-sm"></div>
-                                <div className="flex-1 bg-[#2A2820] h-[75%] rounded-t-sm"></div>
-                                <div className="flex-1 bg-[#2A2820]/60 h-[50%] rounded-t-sm"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
             {/* ==== FLOATING CONTEXT MENU ==== */}
             {contextMenu.visible && (

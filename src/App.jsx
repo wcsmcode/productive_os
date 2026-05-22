@@ -4,8 +4,10 @@ import Taskbar from './components/Taskbar';
 import SettingsApp from './components/app/Settings';
 import { motion } from 'framer-motion';
 import Tracking from './components/app/Tracking/Tracking';
+import NotesApp from './components/app/Notes.jsx';
 //popups
 import AddTaskPopup from './components/app/Tracking/TrackingAddTask';
+import TrackingStats from './components/app/Tracking/TrackingStats';
 
 function App() {
   
@@ -25,10 +27,11 @@ function App() {
     }
     const defaultSizes = {
       settings: { w: 900, h: 650 },
-      notes: { w: 400, h: 500 },
+      notes: { w: 835, h: 635 },
       tracking: { w: 1040, h: 670 },
       //
-      addtaskpopup: { w: 300, h: 350 }
+      addtaskpopup: { w: 300, h: 350 },
+      addtrackingstats: { w: 800, h: 600 }
     };
     const id = `${type}-${Date.now()}`; // Tạo ID duy nhất (nhân bản thoải mái)
     const newWin = { 
@@ -81,6 +84,8 @@ function App() {
               {win.type === 'settings' && <SettingsApp />}
               {win.type === 'tracking' && <Tracking onOpenApp={openApp}/>}
               {win.type === 'addtaskpopup' && <AddTaskPopup onOpenApp={openApp} />}
+              {win.type === 'addtrackingstats' && <TrackingStats onOpenApp={openApp} />}
+              {win.type === 'notes' && <NotesApp />}
             </div>
           </motion.div>
         ))}

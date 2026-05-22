@@ -2,7 +2,9 @@ import {create} from 'zustand';
 import {supabase} from './supabase'
 const useAuthStore = create((set) => ({
     currentState: 'Authorized',
+    user: null,
     setcurrentState: (state) => set({ currentState: state }),
+    setUser: (user) => set({ user }),
 }));
 
 const useTrackingStore = create((set, get) => ({

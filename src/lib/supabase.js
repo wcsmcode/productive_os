@@ -78,17 +78,4 @@ export const AuthService = {
             return null;
         }
     },
-    async signOut() {
-        try{
-            const { error } = await supabase.auth.signOut();
-            if (error) throw error;
-            // Xóa sạch session ở local cho chắc
-            localStorage.clear();
-            window.location.href = '/auth/login.html';
-        } catch (err) {
-            console.error('Failed to sign out:', err);
-        }
-        
-        
-    }
 };
