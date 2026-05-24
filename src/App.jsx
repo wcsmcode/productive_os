@@ -5,6 +5,7 @@ import SettingsApp from './components/app/Settings';
 import { motion } from 'framer-motion';
 import Tracking from './components/app/Tracking/Tracking';
 import NotesApp from './components/app/Notes.jsx';
+import MusicApp from './components/app/Music.jsx';
 //popups
 import AddTaskPopup from './components/app/Tracking/TrackingAddTask';
 import TrackingStats from './components/app/Tracking/TrackingStats';
@@ -29,6 +30,7 @@ function App() {
       settings: { w: 900, h: 650 },
       notes: { w: 835, h: 635 },
       tracking: { w: 1040, h: 670 },
+      music: { w: 770, h: 670 },
       //
       addtaskpopup: { w: 300, h: 350 },
       addtrackingstats: { w: 800, h: 600 }
@@ -86,6 +88,7 @@ function App() {
               {win.type === 'addtaskpopup' && <AddTaskPopup onOpenApp={openApp} />}
               {win.type === 'addtrackingstats' && <TrackingStats onOpenApp={openApp} />}
               {win.type === 'notes' && <NotesApp />}
+              {win.type === 'music' && <MusicApp />}
             </div>
           </motion.div>
         ))}

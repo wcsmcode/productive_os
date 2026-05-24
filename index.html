@@ -21,15 +21,17 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/src/index.css">
 
     <style>
         :root {
             --bg-sand: #DED9C4;
             --card-sand: #E4DFC8;
-            --dark-than: #2A2820;
-            --army-green: #4A5D4E;
-            --border-alpha: rgba(42, 40, 32, 0.08);
+            --dark-than: #1C1A15;
+            --accent-soft: #D6D1B6;
+            --accent-brown: #2A2620;
+            --border-alpha: rgba(42, 38, 32, 0.08);
+            --border-width: 1.5px;
         }
 
         body {
@@ -67,9 +69,9 @@
 <body class="grid-bg antialiased">
 
 <header>
-    <nav class="flex justify-between items-center px-6 md:px-10 py-5 sticky top-0 z-50 bg-[#DED9C4]/80 backdrop-blur-md border-b border-[#2A2820]/5">
+    <nav class="flex justify-between items-center px-6 md:px-10 py-5 sticky top-0 z-50 bg-[#DED9C4]/80 backdrop-blur-md border-b border-[#1C1A15]/5">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-[#2A2820] rounded flex items-center justify-center text-[#E4DFC8] font-black">
+            <div class="w-8 h-8 bg-[#1C1A15] rounded flex items-center justify-center text-[#E4DFC8] font-black">
                 P
             </div>
             <span class="mono font-bold text-sm tracking-tight uppercase">
@@ -77,337 +79,255 @@
             </span>
         </div>
 
-        <div class="hidden md:flex gap-8 mono text-[11px] font-bold uppercase tracking-[0.18em] text-[#2A2820]/60">
+        <div class="hidden md:flex gap-8 mono text-[11px] font-bold uppercase tracking-[0.18em] text-[#1C1A15]/60">
             <a href="#features" class="hover:text-black transition">
-                Features
+                Core Modules
+            </a>
+            <a href="#comparison" class="hover:text-black transition">
+                Architecture
             </a>
             <a href="#pricing" class="hover:text-black transition">
-                Pricing
+                Licensing
             </a>
             <a href="#faq" class="hover:text-black transition">
                 FAQ
             </a>
         </div>
 
-        <button class="bg-[#2A2820] text-[#E4DFC8] px-5 py-2.5 rounded-md font-bold text-[11px] uppercase tracking-[0.15em] hover:bg-[#4A5D4E] transition-all">
-            Start Free Trial
+        <button class="bg-[#1C1A15] text-[#E4DFC8] px-5 py-2.5 rounded-md font-bold text-[11px] uppercase tracking-[0.15em] hover:bg-[#2A2620] transition-all">
+            Enter Environment
         </button>
     </nav>
 </header>
 
 <main>
 
-    <!-- HERO -->
     <section class="pt-16 md:pt-24 px-6 overflow-hidden">
-
         <div class="max-w-5xl mx-auto text-center">
-
-            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#2A2820]/10 bg-[#2A2820]/5 mono text-[10px] font-bold uppercase tracking-[0.2em] animate-reveal">
-                <span class="w-2 h-2 rounded-full bg-[#4A5D4E]"></span>
-                System v1.0.4
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#1C1A15]/10 bg-[#1C1A15]/5 mono text-[10px] font-bold uppercase tracking-[0.2em] animate-reveal">
+                <span class="w-2 h-2 rounded-full bg-[#2A2620] animate-pulse"></span>
+                System v1.0.5 — Compiling Alpha Slots
             </div>
 
-            <h1 class="mt-8 text-5xl md:text-7xl font-black leading-[0.95] tracking-tighter uppercase animate-reveal">
-                A distraction-free workspace built for deep work.
+            <h1 class="mt-8 text-5xl md:text-7xl font-black leading-[0.95] tracking-tighter uppercase骨 animate-reveal">
+                THE OPERATOR ENVIRONMENT FOR SOLO DEVELOPERS.
             </h1>
 
-            <p class="mt-8 text-lg md:text-xl text-[#2A2820]/75 max-w-3xl mx-auto leading-relaxed animate-reveal">
-                Productive OS combines focus sessions, task management, notes, and workflow automation into one clean minimalist environment.
+            <p class="mt-8 text-lg md:text-xl text-[#1C1A15]/75 max-w-3xl mx-auto leading-relaxed animate-reveal">
+                A minimal, keyboard-driven desktop environment simulated inside your browser. Isolate your focus, dump your terminal scratchpads, and execute tasks without the desktop noise.
             </p>
 
             <div class="flex flex-col sm:flex-row justify-center items-center gap-5 mt-10 animate-reveal">
-                <button class="bg-[#2A2820] text-[#E4DFC8] px-10 py-5 rounded-lg font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:-translate-y-1 transition-all">
-                    Start Free — 7 Days
-                </button>
+                <a href="#pricing" class="bg-[#1C1A15] text-[#E4DFC8] px-10 py-5 rounded-lg font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:-translate-y-0.5 transition-all">
+                    PRE-ORDER ARCHITECT LICENSE — $19
+                </a>
 
-                <button class="font-bold text-sm underline underline-offset-4 hover:opacity-70 transition">
-                    Watch Demo
+                <button class="font-bold text-sm underline underline-offset-4 hover:opacity-70 transition mono uppercase tracking-wider">
+                    // Watch System Demo
                 </button>
             </div>
 
-            <div class="mt-8 text-sm text-[#2A2820]/55 font-medium">
-                Trusted by 2,000+ developers, students, and creators.
+            <div class="mt-8 text-sm text-[#1C1A15]/55 font-medium mono">
+                [!] Built for operators who value uninterrupted deep work loops.
             </div>
         </div>
 
-        <!-- UI SHOWCASE -->
         <div class="relative max-w-6xl mx-auto mt-20">
-
-            <div class="bg-[#E4DFC8] border border-[#2A2820]/10 rounded-2xl shadow-2xl overflow-hidden">
-
-                <div class="h-12 bg-[#2A2820]/5 border-b border-[#2A2820]/10 flex items-center px-5 justify-between">
-                    <div class="flex gap-2">
-                        <div class="w-3 h-3 rounded-full bg-black/10"></div>
-                        <div class="w-3 h-3 rounded-full bg-black/10"></div>
-                        <div class="w-3 h-3 rounded-full bg-black/10"></div>
-                    </div>
-
-                    <div class="mono text-[10px] uppercase tracking-[0.25em] text-[#2A2820]/40">
-                        Productive Environment
-                    </div>
-
-                    <div></div>
-                </div>
-
-                <div class="grid md:grid-cols-3 gap-6 p-8 md:p-12 min-h-[520px]">
-
-                    <div class="bg-[#DED9C4] border border-[#2A2820]/10 rounded-xl p-6 shadow-sm">
-                        <div class="mono text-[10px] uppercase tracking-widest text-[#2A2820]/40 mb-5">
-                            Focus Tasks
-                        </div>
-
-                        <div class="space-y-4">
-                            <div class="flex gap-3 items-center">
-                                <div class="w-4 h-4 rounded border border-black/20"></div>
-                                <span class="font-semibold">Launch startup landing page</span>
-                            </div>
-
-                            <div class="flex gap-3 items-center">
-                                <div class="w-4 h-4 rounded border-2 border-[#4A5D4E]"></div>
-                                <span class="font-semibold">Deep Work Session</span>
-                            </div>
-
-                            <div class="flex gap-3 items-center opacity-50">
-                                <div class="w-4 h-4 rounded border border-black/20"></div>
-                                <span class="font-semibold">Write product docs</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-[#2A2820] rounded-xl p-8 text-[#DED9C4] flex flex-col justify-center items-center text-center shadow-xl">
-                        <div class="mono text-[10px] uppercase tracking-[0.2em] opacity-50 mb-3">
-                            Deep Work Timer
-                        </div>
-
-                        <div class="text-6xl font-black tracking-tighter">
-                            24:59
-                        </div>
-
-                        <div class="w-full h-2 rounded-full bg-white/10 overflow-hidden mt-8">
-                            <div class="h-full bg-[#4A5D4E] w-3/4"></div>
-                        </div>
-                    </div>
-
-                    <div class="bg-[#DED9C4] border border-[#2A2820]/10 rounded-xl p-6 shadow-sm">
-                        <div class="mono text-[10px] uppercase tracking-widest text-[#2A2820]/40 mb-5">
-                            Quick Notes
-                        </div>
-
-                        <p class="text-sm leading-relaxed text-[#2A2820]/70">
-                            Ideas, reminders, references, and quick thoughts automatically saved locally without interruptions.
-                        </p>
-                    </div>
+            <div class="bg-[#E4DFC8] border border-[#1C1A15]/10 rounded-2xl shadow-2xl overflow-hidden p-1.5">
+                <div class="rounded-xl overflow-hidden aspect-video relative bg-[#DED9C4]">
+                    <video autoplay loop muted playsinline class="w-full h-full object-cover">
+                        <source src="/video/Demo.mp4" type="video/mp4" alt="Productive OS demo video">
+                        </video>
                 </div>
             </div>
-
-            <div class="absolute -z-10 top-0 left-1/2 -translate-x-1/2 w-[70%] h-full bg-[#4A5D4E]/10 blur-[80px] rounded-full"></div>
+            <div class="absolute -z-10 top-0 left-1/2 -translate-x-1/2 w-[70%] h-full bg-[#2A2620]/5 blur-[80px] rounded-full"></div>
         </div>
     </section>
 
-
-    <!-- FEATURES -->
     <section id="features" class="max-w-7xl mx-auto px-6 md:px-8 py-28">
-
         <div class="max-w-2xl mb-16">
             <h2 class="text-4xl md:text-5xl font-black tracking-tighter uppercase">
-                Built for modern focus.
+                NATIVE MODULES
             </h2>
-
-            <p class="mt-5 text-lg text-[#2A2820]/70 leading-relaxed">
-                Everything inside Productive OS is designed to reduce context switching and help you sustain deep work sessions longer.
+            <p class="mt-5 text-lg text-[#1C1A15]/70 leading-relaxed">
+                Pre-installed essentials designed inside a singular view protocol to completely eliminate context-switching.
             </p>
         </div>
 
-        <div class="grid md:grid-cols-3 gap-6">
-
-            <article class="p-8 bg-[#E4DFC8] rounded-2xl border border-[#2A2820]/10">
-                <h3 class="text-2xl font-black tracking-tight uppercase">
-                    Focus Mode
-                </h3>
-
-                <p class="mt-4 text-[#2A2820]/70 leading-relaxed">
-                    Automatically silence distractions, organize active tasks, and lock into uninterrupted work sessions.
-                </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <article class="p-8 bg-[#E4DFC8] rounded-2xl border border-[#1C1A15]/10 md:col-span-2 flex flex-col justify-between min-h-[280px]">
+                <div>
+                    <div class="mono text-[10px] font-bold uppercase tracking-widest text-[#1C1A15]/40 mb-4">01 / CORE STRUCTURE</div>
+                    <h3 class="text-3xl font-black tracking-tight uppercase">SIMULATED OS ARCHITECTURE</h3>
+                    <p class="mt-4 text-[#1C1A15]/70 max-w-xl leading-relaxed">
+                        Not a generic single-page app. This simulates a completely isolated desktop environment natively in your browser tab. Open, drag, and stack specialized tools seamlessly without messy multi-tab overhead.
+                    </p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-[#1C1A15]/5 flex gap-4 text-xs font-bold mono opacity-60">
+                    <span>// SYSTEM_DRIVEN</span>
+                    <span>// LOCAL_FIRST</span>
+                </div>
             </article>
 
-            <article class="p-8 bg-[#2A2820] text-[#DED9C4] rounded-2xl">
-                <h3 class="text-2xl font-black tracking-tight uppercase text-white">
-                    Pomodoro Engine
-                </h3>
-
-                <p class="mt-4 opacity-80 leading-relaxed">
-                    Built-in focus cycles with intelligent session tracking and analytics.
-                </p>
+            <article class="p-8 bg-[#E4DFC8] rounded-2xl border border-[#1C1A15]/10 flex flex-col justify-between">
+                <div>
+                    <div class="mono text-[10px] font-bold uppercase tracking-widest text-[#1C1A15]/40 mb-4">02 / STORAGE</div>
+                    <h3 class="text-2xl font-black tracking-tight uppercase">ZEN NOTES & SCRATCHPAD</h3>
+                    <p class="mt-3 text-[#1C1A15]/70 text-sm leading-relaxed">
+                        A markdown-ready khay nhớ tạm designed exclusively for rapid brain-dumps. Instantly capture invasive thoughts, snippets, or tasks mid-session, then cleanly dump them into local cache without breaking flow.
+                    </p>
+                </div>
+                <div class="mt-6 flex items-center justify-between text-[11px] font-bold mono bg-[#1C1A15]/5 px-3 py-2 rounded">
+                    <span class="opacity-50">GLOBAL INPUT TRIGER</span>
+                    <span class="px-1.5 py-0.5 bg-[#1C1A15] text-[#E4DFC8] rounded text-[10px]">Alt + D</span>
+                </div>
             </article>
 
-            <article class="p-8 bg-[#E4DFC8] rounded-2xl border border-[#2A2820]/10">
-                <h3 class="text-2xl font-black tracking-tight uppercase">
-                    Offline Notes
-                </h3>
+            <article class="p-8 bg-[#E4DFC8] rounded-2xl border border-[#1C1A15]/10 flex flex-col justify-between">
+                <div>
+                    <div class="mono text-[10px] font-bold uppercase tracking-widest text-[#1C1A15]/40 mb-4">03 / APPLICATION</div>
+                    <h3 class="text-2xl font-black tracking-tight uppercase">INTEGRATED POMODORO</h3>
+                    <p class="mt-3 text-[#1C1A15]/70 text-sm leading-relaxed">
+                        An execution countdown hard-locked into your workspace view. Keeps your primary mission dead-center to forcefully suppress the urge to wander off to distracting sites.
+                    </p>
+                </div>
+                <div class="mt-6 text-2xl font-black tracking-tighter text-right opacity-30 mono">
+                    25:00
+                </div>
+            </article>
 
-                <p class="mt-4 text-[#2A2820]/70 leading-relaxed">
-                    Lightweight markdown-ready notes stored locally for speed and privacy.
-                </p>
+            <article class="p-8 bg-[#2A2620] text-[#DED9C4] rounded-2xl md:col-span-2 flex flex-col justify-between relative overflow-hidden">
+                <div>
+                    <div class="mono text-[10px] font-bold uppercase tracking-widest text-white/40 mb-4">04 / METRICS PROTOCOL</div>
+                    <h3 class="text-3xl font-black tracking-tight uppercase text-white">CONTRIBUTION HEATMAPS</h3>
+                    <p class="mt-4 opacity-80 max-w-xl leading-relaxed">
+                        Track execution records through a dense, git-style heatmap grid directly matching the system analytics dashboard. Log intervals, lock discipline stats, and visualize cycles like code commits.
+                    </p>
+                </div>
+                <div class="mt-8 flex items-center gap-3">
+                    <span class="px-2 py-1 rounded bg-[#4A5D4E] text-white text-[9px] uppercase tracking-wider font-bold mono">Status: Compiling...</span>
+                    <span class="text-xs font-medium opacity-40 mono">// Next sprint delivery</span>
+                </div>
+                <div class="absolute bottom-4 right-6 flex gap-1 items-end opacity-10 h-16">
+                    <div class="w-3 h-6 bg-white rounded-sm"></div>
+                    <div class="w-3 h-10 bg-white rounded-sm"></div>
+                    <div class="w-3 h-4 bg-white rounded-sm"></div>
+                    <div class="w-3 h-14 bg-white rounded-sm"></div>
+                    <div class="w-3 h-8 bg-white rounded-sm"></div>
+                </div>
             </article>
         </div>
     </section>
 
-
-    <!-- COMPARISON -->
-    <section class="max-w-6xl mx-auto px-6 py-10">
-
-        <div class="overflow-hidden rounded-2xl border border-[#2A2820]/10 bg-[#E4DFC8]">
-
-            <table class="w-full text-left">
-                <thead class="bg-[#2A2820] text-[#DED9C4]">
+    <section id="comparison" class="max-w-6xl mx-auto px-6 py-12">
+        <div class="text-center max-w-2xl mx-auto mb-12">
+            <h2 class="text-3xl font-black tracking-tighter uppercase">OPERATING ENVIRONMENT VS CLOUD NOISE</h2>
+        </div>
+        <div class="overflow-hidden rounded-2xl border border-[#1C1A15]/10 bg-[#E4DFC8]">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-[#1C1A15] text-[#E4DFC8] mono text-xs uppercase tracking-wider">
                     <tr>
-                        <th class="px-6 py-5">Feature</th>
+                        <th class="px-6 py-5">Architecture</th>
                         <th class="px-6 py-5">Productive OS</th>
-                        <th class="px-6 py-5">Notion</th>
-                        <th class="px-6 py-5">Todoist</th>
+                        <th class="px-6 py-5">Notion / Linear</th>
+                        <th class="px-6 py-5">Standard Browser Tab</th>
                     </tr>
                 </thead>
-
-                <tbody>
-                    <tr class="border-t border-black/10">
-                        <td class="px-6 py-5 font-semibold">Deep Focus Mode</td>
-                        <td class="px-6 py-5">✓</td>
-                        <td class="px-6 py-5">✗</td>
-                        <td class="px-6 py-5">✗</td>
+                <tbody class="text-sm">
+                    <tr class="border-t border-[#1C1A15]/10 hover:bg-[#1C1A15]/5 transition-colors">
+                        <td class="px-6 py-5 font-bold uppercase text-xs tracking-wider">Workspace Loop</td>
+                        <td class="px-6 py-5 font-semibold text-[#2A2620]">Isolated OS Simulator</td>
+                        <td class="px-6 py-5 text-[#1C1A15]/60">Heavy Enterprise Webapp</td>
+                        <td class="px-6 py-5 text-[#1C1A15]/60">Endless Distraction Vortex</td>
                     </tr>
-
-                    <tr class="border-t border-black/10">
-                        <td class="px-6 py-5 font-semibold">Built-in Pomodoro</td>
-                        <td class="px-6 py-5">✓</td>
-                        <td class="px-6 py-5">✗</td>
-                        <td class="px-6 py-5">Partial</td>
+                    <tr class="border-t border-[#1C1A15]/10 hover:bg-[#1C1A15]/5 transition-colors">
+                        <td class="px-6 py-5 font-bold uppercase text-xs tracking-wider">Context Switching</td>
+                        <td class="px-6 py-5 font-semibold text-[#2A2620]">Zero. Dynamic Workspace Views</td>
+                        <td class="px-6 py-5 text-[#1C1A15]/60">High (Paging depth overhead)</td>
+                        <td class="px-6 py-5 text-[#1C1A15]/60">Fatal (One click to YouTube)</td>
                     </tr>
-
-                    <tr class="border-t border-black/10">
-                        <td class="px-6 py-5 font-semibold">Offline-first Notes</td>
-                        <td class="px-6 py-5">✓</td>
-                        <td class="px-6 py-5">✗</td>
-                        <td class="px-6 py-5">✗</td>
+                    <tr class="border-t border-[#1C1A15]/10 hover:bg-[#1C1A15]/5 transition-colors">
+                        <td class="px-6 py-5 font-bold uppercase text-xs tracking-wider">Data Privacy</td>
+                        <td class="px-6 py-5 font-semibold text-[#2A2620]">Local-First / Encrypted</td>
+                        <td class="px-6 py-5 text-[#1C1A15]/60">Cloud Centralized</td>
+                        <td class="px-6 py-5 text-[#1C1A15]/60">Ad-Tracked & Indexed</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </section>
 
-
-    <!-- PRICING -->
     <section id="pricing" class="max-w-7xl mx-auto px-6 md:px-8 py-32">
-
         <div class="text-center max-w-2xl mx-auto">
-            <h2 class="text-4xl md:text-5xl font-black tracking-tighter uppercase">
-                Simple pricing.
-            </h2>
-
-            <p class="mt-5 text-lg text-[#2A2820]/70">
-                Choose a plan and start building a more focused workflow.
+            <h2 class="text-4xl md:text-5xl font-black tracking-tighter uppercase">SYSTEM LICENSING</h2>
+            <p class="mt-5 text-lg text-[#1C1A15]/70">
+                Secure temporary alpha tier pricing. Own your offline workspace architecture permanently.
             </p>
         </div>
 
-        <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mt-16">
-
-            <article class="p-10 bg-[#E4DFC8] border border-[#2A2820]/10 rounded-2xl">
-                <div class="mono text-[10px] uppercase tracking-[0.2em] text-[#2A2820]/40">
-                    Monthly
+        <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mt-16">
+            
+            <article class="p-10 bg-[#E4DFC8] border border-[#1C1A15]/10 rounded-2xl flex flex-col justify-between">
+                <div>
+                    <div class="mono text-[10px] uppercase tracking-[0.2em] text-[#1C1A15]/40 font-bold">Standard Spec</div>
+                    <h3 class="mt-4 text-3xl font-black uppercase tracking-tight">OPERATOR TIER</h3>
+                    <div class="mt-6 flex items-end gap-2">
+                        <span class="text-6xl font-black">$9</span>
+                        <span class="pb-2 text-[#1C1A15]/60 mono">/one-time</span>
+                    </div>
+                    <ul class="mt-8 space-y-4 text-[#1C1A15]/75 text-sm font-medium">
+                        <li>✓ Permanent Core OS Simulator Access</li>
+                        <li>✓ Standard Integrated Pomodoro App</li>
+                        <li>✓ Local Storage Zen Notes & Tasking</li>
+                        <li>✓ Lifetime Local Deployment Updates</li>
+                    </ul>
                 </div>
-
-                <h3 class="mt-4 text-3xl font-black uppercase tracking-tight">
-                    Operator
-                </h3>
-
-                <div class="mt-6 flex items-end gap-2">
-                    <span class="text-6xl font-black">$5</span>
-                    <span class="pb-2 text-[#2A2820]/60">/month</span>
-                </div>
-
-                <ul class="mt-8 space-y-4 text-[#2A2820]/75">
-                    <li>✓ Full access</li>
-                    <li>✓ Focus analytics</li>
-                    <li>✓ Cloud sync</li>
-                    <li>✓ Weekly updates</li>
-                </ul>
-
-                <button class="mt-10 w-full py-4 border border-[#2A2820] rounded-lg font-black uppercase tracking-[0.15em] text-sm hover:bg-[#2A2820] hover:text-[#DED9C4] transition-all">
-                    Start Monthly
+                <button class="mt-10 w-full py-4 border-2 border-[#1C1A15] rounded-lg font-black uppercase tracking-[0.15em] text-xs hover:bg-[#1C1A15] hover:text-[#DED9C4] transition-all">
+                    PROCEED WITH OPERATOR LICENSING
                 </button>
             </article>
 
-            <article class="p-10 bg-[#2A2820] text-[#DED9C4] rounded-2xl shadow-2xl relative overflow-hidden">
-
-                <div class="absolute top-5 right-5 bg-[#4A5D4E] text-white px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold">
-                    Best Value
+            <article class="p-10 bg-[#1C1A15] text-[#DED9C4] rounded-2xl shadow-2xl relative overflow-hidden flex flex-col justify-between">
+                <div class="absolute top-5 right-5 bg-[#2A2620] border border-white/10 text-[#E4DFC8] px-3 py-1 rounded-full text-[9px] uppercase tracking-widest font-bold mono">
+                    ALPHA SLOT
                 </div>
-
-                <div class="mono text-[10px] uppercase tracking-[0.2em] opacity-50">
-                    Lifetime
+                <div>
+                    <div class="mono text-[10px] uppercase tracking-[0.2em] opacity-40 font-bold">Full Access Pass</div>
+                    <h3 class="mt-4 text-3xl font-black uppercase tracking-tight text-white">ARCHITECT (LIFETIME)</h3>
+                    <div class="mt-6 flex items-end gap-2">
+                        <span class="text-6xl font-black text-white">$19</span>
+                        <span class="pb-2 opacity-40 line-through text-sm">$39</span>
+                    </div>
+                    <ul class="mt-8 space-y-4 opacity-85 text-sm font-medium">
+                        <li>✓ Everything in Operator Tier + Future Upgrades</li>
+                        <li>✓ Priority Early-Access to Git-Style Heatmap Feature</li>
+                        <li>✓ Native VS Code Extension Pack Module (.vsix)</li>
+                        <li>✓ Direct Private Communication Pipeline with the Core Dev</li>
+                    </ul>
                 </div>
-
-                <h3 class="mt-4 text-3xl font-black uppercase tracking-tight text-white">
-                    Architect
-                </h3>
-
-                <div class="mt-6 flex items-end gap-2">
-                    <span class="text-6xl font-black text-white">$39</span>
-                    <span class="pb-2 opacity-60">once</span>
-                </div>
-
-                <ul class="mt-8 space-y-4 opacity-85">
-                    <li>✓ Everything included</li>
-                    <li>✓ Lifetime access</li>
-                    <li>✓ Beta features</li>
-                    <li>✓ Future upgrades</li>
-                </ul>
-
-                <button class="mt-10 w-full py-4 rounded-lg bg-[#4A5D4E] text-white font-black uppercase tracking-[0.15em] text-sm hover:brightness-110 transition-all">
-                    Buy Lifetime
+                <button class="mt-10 w-full py-4 rounded-lg bg-[#2A2620] border border-white/10 text-white font-black uppercase tracking-[0.15em] text-xs hover:brightness-125 transition-all shadow-lg">
+                    SECURE MY ARCHITECT SLOT
                 </button>
             </article>
         </div>
     </section>
 
-
-    <!-- FAQ -->
-    <section id="faq" class="max-w-5xl mx-auto px-6 py-24 border-t border-[#2A2820]/10">
-
+    <section id="faq" class="max-w-5xl mx-auto px-6 py-24 border-t border-[#1C1A15]/10">
         <div class="text-center mb-16">
-            <h2 class="text-4xl font-black uppercase tracking-tighter">
-                FAQ
-            </h2>
+            <h2 class="text-4xl font-black uppercase tracking-tighter">ENVIRONMENT SPECS // FAQ</h2>
         </div>
-
-        <div class="space-y-6">
-
-            <div class="p-6 rounded-2xl bg-[#E4DFC8] border border-[#2A2820]/10">
-                <h3 class="font-black text-lg">
-                    Does Productive OS work offline?
-                </h3>
-
-                <p class="mt-3 text-[#2A2820]/70 leading-relaxed">
-                    Yes. Core features like notes, focus sessions, and task management work locally.
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="p-6 rounded-2xl bg-[#E4DFC8] border border-[#1C1A15]/10">
+                <h3 class="font-black text-lg uppercase tracking-tight">Does it run serverless/offline?</h3>
+                <p class="mt-3 text-[#1C1A15]/70 text-sm leading-relaxed">
+                    Yes. All core environment components—the workspace engine, notes caching, and tracking timelines—operate fully within local browser runtime storage. No telemetry data leaks.
                 </p>
             </div>
-
-            <div class="p-6 rounded-2xl bg-[#E4DFC8] border border-[#2A2820]/10">
-                <h3 class="font-black text-lg">
-                    Is there a free trial?
-                </h3>
-
-                <p class="mt-3 text-[#2A2820]/70 leading-relaxed">
-                    Yes. Every account starts with a 7-day free trial.
-                </p>
-            </div>
-
-            <div class="p-6 rounded-2xl bg-[#E4DFC8] border border-[#2A2820]/10">
-                <h3 class="font-black text-lg">
-                    Who is this designed for?
-                </h3>
-
-                <p class="mt-3 text-[#2A2820]/70 leading-relaxed">
-                    Developers, students, designers, founders, and anyone who values uninterrupted deep work.
+            <div class="p-6 rounded-2xl bg-[#E4DFC8] border border-[#1C1A15]/10">
+                <h3 class="font-black text-lg uppercase tracking-tight">Why mock an OS instead of a normal app?</h3>
+                <p class="mt-3 text-[#1C1A15]/70 text-sm leading-relaxed">
+                    Traditional apps force you to constantly jump tabs or deal with system-level UI notifications. Productive OS captures focus by building a strict sandbox interface designed solely for execution.
                 </p>
             </div>
         </div>
@@ -415,10 +335,9 @@
 
 </main>
 
-<footer class="border-t border-[#2A2820]/10 py-10 px-6 text-center text-sm text-[#2A2820]/55">
-    © 2026 Productive OS — Built for focus.
+<footer class="border-t border-[#1C1A15]/10 py-10 px-6 text-center text-xs text-[#1C1A15]/45 mono uppercase tracking-wider">
+    © 2026 Productive OS — Simulated Environment for Deep Execution.
 </footer>
 
 </body>
 </html>
-
