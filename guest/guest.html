@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solo OS - Guest Mode</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Tùy chỉnh hiệu ứng neo-brutalism */
+        .brutal-shadow {
+            box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+        }
+        .brutal-shadow-lg {
+            box-shadow: 8px 8px 0px 0px rgba(0,0,0,1);
+        }
+        .brutal-btn:active {
+            box-shadow: 0px 0px 0px 0px rgba(0,0,0,1);
+            transform: translate(4px, 4px);
+        }
+        /* Custom scrollbar cho đúng vibe hoài cổ */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #D2CBB0;
+            border-left: 2px solid #000;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2A2820;
+        }
+    </style>
+</head>
+<body class="w-screen h-screen bg-[#D8D1B4] text-[#2A2820] font-mono select-none overflow-hidden m-0 p-0">
+
+    <div class="w-full h-full p-8 flex flex-row-reverse gap-8 relative">
+        
+        <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] bg-black text-white px-4 py-2 rounded-full border-2 border-white flex items-center gap-3 transition-all duration-500 transform -translate-y-12 opacity-0">
+            <i data-lucide="bell" class="w-4 h-4 text-yellow-400"></i>
+            <span class="text-xs font-black uppercase tracking-tight">Running on Guest Mode (Free)</span>
+        </div>
+
+        <aside class="w-64 flex flex-col gap-4 shrink-0 z-10">
+            <div class="flex items-center gap-3 p-2 border-2 border-black rounded-xl bg-white/20">
+                <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-black text-sm">G</div>
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-black uppercase tracking-tight">Guest Mode</span>
+                    <span class="text-[7px] text-red-700 font-black uppercase">Free Version</span>
+                </div>
+            </div>
+
+            <span class="text-[8px] font-black opacity-30 uppercase tracking-[0.2em] px-1">Live Gadgets</span>
+            
+            <div class="w-48 bg-[#E2E2E2] border-2 border-black rounded-xl p-3 brutal-shadow flex flex-col items-center gap-2 relative">
+                <span class="text-[8px] font-black opacity-40 uppercase tracking-widest text-center w-full">🔒 Music (Premium)</span>
+                
+                <div onclick="triggerAuthBlock('Music Player')" class="w-20 h-20 rounded-full bg-[#1A1A17] border-2 border-black flex items-center justify-center cursor-pointer group relative">
+                    <div class="w-7 h-7 rounded-full bg-[#D8D1B4] border border-black flex items-center justify-center z-10">
+                        <div class="w-1.5 h-1.5 rounded-full bg-black"></div>
+                    </div>
+                </div>
+                
+                <button onclick="triggerAuthBlock('Music Player')" class="w-8 h-8 rounded-full border-2 border-black bg-white flex items-center justify-center active:scale-95 transition-transform">
+                    <i data-lucide="play" class="w-3 h-3 ml-0.5"></i>
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col items-start gap-4 z-10">
+            <span class="text-[8px] font-black opacity-30 uppercase tracking-[0.2em]">Desktop Shortcuts</span>
+            
+            <div class="flex flex-col gap-3">
+                <div onclick="openWindow('tracking-win')" class="group flex flex-col items-center gap-1 w-16 cursor-pointer">
+                    <div class="w-12 h-12 bg-[#f0f0f0] border-2 border-black brutal-shadow group-hover:translate-x-[1px] group-hover:translate-y-[1px] group-hover:shadow-none transition-all flex items-center justify-center">
+                        <i data-lucide="alarm-clock" class="w-5 h-5 text-black"></i>
+                    </div>
+                    <span class="text-[9px] font-black uppercase tracking-tighter text-black opacity-70 group-hover:opacity-100 text-center">Tracking</span>
+                </div>
+
+                <div onclick="openWindow('notes-win')" class="group flex flex-col items-center gap-1 w-16 cursor-pointer">
+                    <div class="w-12 h-12 bg-[#f0f0f0] border-2 border-black brutal-shadow group-hover:translate-x-[1px] group-hover:translate-y-[1px] group-hover:shadow-none transition-all flex items-center justify-center">
+                        <i data-lucide="file-text" class="w-5 h-5 text-black"></i>
+                    </div>
+                    <span class="text-[9px] font-black uppercase tracking-tighter text-black opacity-70 group-hover:opacity-100 text-center">Notes</span>
+                </div>
+
+                <div onclick="triggerAuthBlock('Settings')" class="group flex flex-col items-center gap-1 w-16 cursor-pointer relative">
+                    <div class="w-12 h-12 bg-[#f0f0f0]/50 border-2 border-black brutal-shadow flex items-center justify-center relative">
+                        <i data-lucide="settings" class="w-5 h-5 text-black/40"></i>
+                        <span class="absolute -top-1 -right-1 text-[7px] bg-red-600 text-white font-black px-1 rounded-sm">PRO</span>
+                    </div>
+                    <span class="text-[9px] font-black uppercase tracking-tighter text-black opacity-40 text-center">Settings</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="tracking-win" class="absolute top-24 left-24 w-[360px] bg-white border-2 border-black brutal-shadow-lg flex flex-col hidden z-20">
+        <div class="flex justify-between items-center px-3 py-1.5 bg-[#EAE7D7] border-b-2 border-black cursor-move title-bar">
+            <span class="text-[10px] font-black uppercase italic">tracking.sys (free)</span>
+            <button onclick="closeWindow('tracking-win')" class="hover:bg-red-500 font-bold px-2 border-l-2 border-black">×</button>
+        </div>
+        <div class="p-6 flex flex-col items-center gap-4 bg-white">
+            <div id="timer-display" class="text-5xl font-black tracking-tight tabular-nums">25:00</div>
+            <div class="flex gap-2">
+                <button id="timer-btn" onclick="toggleTimer()" class="px-4 py-1.5 border-2 border-black bg-white font-black uppercase text-xs brutal-shadow brutal-btn">Start</button>
+                <button onclick="resetTimer()" class="px-4 py-1.5 border-2 border-black bg-[#E2E2E2] font-black uppercase text-xs brutal-shadow brutal-btn">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notes-win" class="absolute top-32 left-48 w-[400px] h-[320px] bg-white border-2 border-black brutal-shadow-lg flex flex-col hidden z-20">
+        <div class="flex justify-between items-center px-3 py-1.5 bg-[#EAE7D7] border-b-2 border-black cursor-move title-bar">
+            <span class="text-[10px] font-black uppercase italic">notes.sys (free)</span>
+            <button onclick="closeWindow('notes-win')" class="hover:bg-red-500 font-bold px-2 border-l-2 border-black">×</button>
+        </div>
+        <div class="p-4 flex-1 flex flex-col gap-2 bg-white">
+            <span class="text-[8px] font-black opacity-40 uppercase">Scratchpad (Auto-saves to browser)</span>
+            <textarea id="notes-area" class="w-full flex-1 p-3 border-2 border-black outline-none font-sans text-xs resize-none focus:bg-yellow-50" placeholder="Type your thoughts here..."></textarea>
+        </div>
+    </div>
+
+    <div id="auth-modal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-[99999] hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-[#F4F1E1] border-4 border-black p-6 w-[340px] brutal-shadow-lg text-center flex flex-col gap-4 transform scale-95 transition-transform duration-300">
+            <div class="w-12 h-12 bg-red-100 border-2 border-black rounded-full flex items-center justify-center mx-auto">
+                <i data-lucide="lock" class="w-6 h-6 text-red-700"></i>
+            </div>
+            <div>
+                <h3 class="font-black text-sm uppercase tracking-tight">Premium feature locked</h3>
+                <p class="text-[10px] text-black/60 mt-1">Application <span id="locked-app-name" class="font-bold text-black"></span> requires an Architect cloud account.</p>
+            </div>
+            <div class="flex flex-col gap-2">
+                <button onclick="window.location.href='./auth.html'" class="w-full py-2 bg-black text-white font-black uppercase text-xs brutal-shadow brutal-btn">Sign In / Register</button>
+                <button onclick="closeAuthModal()" class="w-full py-2 border-2 border-black bg-white font-black uppercase text-xs brutal-shadow brutal-btn">Stay as Guest</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Khởi tạo hệ thống icon Lucide
+        lucide.createIcons();
+
+        // 1. Giả lập hiệu ứng boot loading
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const bootScreen = document.getElementById('boot-screen');
+                bootScreen.classList.add('opacity-0', 'pointer-events-none');
+                
+                // Show Toast chào mừng sau khi boot xong
+                setTimeout(() => {
+                    const toast = document.getElementById('toast');
+                    toast.classList.remove('-translate-y-12', 'opacity-0');
+                    setTimeout(() => {
+                        toast.classList.add('-translate-y-12', 'opacity-0');
+                    }, 3000);
+                }, 500);
+            }, 2000);
+
+            // Load data Notes cũ từ localStorage nếu có
+            document.getElementById('notes-area').value = localStorage.getItem('solo_guest_notes') || '';
+        });
+
+        // Tự động lưu Note vào Browser cache khi gõ chữ
+        document.getElementById('notes-area').addEventListener('input', (e) => {
+            localStorage.setItem('solo_guest_notes', e.target.value);
+        });
+
+        // 2. Logic Quản Lý Cửa Sổ (Mở/Đóng/Nổi lên trên)
+        let topZ = 20;
+
+        function openWindow(id) {
+            const win = document.getElementById(id);
+            win.classList.remove('hidden');
+            focusWindow(win);
+        }
+
+        function closeWindow(id) {
+            document.getElementById(id).classList.add('hidden');
+            if(id === 'tracking-win' && isTimerRunning) toggleTimer(); // Stop timer nếu đóng
+        }
+
+        function focusWindow(win) {
+            topZ += 1;
+            win.style.zIndex = topZ;
+        }
+
+        // 3. Xử lý Modal chặn Đăng nhập
+        function triggerAuthBlock(appName) {
+            document.getElementById('locked-app-name').innerText = appName;
+            const modal = document.getElementById('auth-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.querySelector('div').classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeAuthModal() {
+            const modal = document.getElementById('auth-modal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        // 4. Logic Đếm Giờ Pomodoro (Tracking)
+        let timer;
+        let isTimerRunning = false;
+        let timeLeft = 25 * 60; // 25 phút quy ra giây
+
+        function toggleTimer() {
+            const btn = document.getElementById('timer-btn');
+            if (isTimerRunning) {
+                clearInterval(timer);
+                btn.innerText = "Start";
+                btn.classList.remove('bg-red-200');
+            } else {
+                timer = setInterval(() => {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        alert("Time's up, Architect!");
+                        resetTimer();
+                    }
+                }, 1000);
+                btn.innerText = "Pause";
+                btn.classList.add('bg-red-200');
+            }
+            isTimerRunning = !isTimerRunning;
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            isTimerRunning = false;
+            timeLeft = 25 * 60;
+            updateTimerDisplay();
+            document.getElementById('timer-btn').innerText = "Start";
+            document.getElementById('timer-btn').classList.remove('bg-red-200');
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const seconds = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timer-display').innerText = `${minutes}:${seconds}`;
+        }
+
+        // 5. Tính năng Kéo Thả Cửa Sổ Cơ Bản (Drag mechanism) - ĐÃ BỌC THÉP CHỐNG LỖI NULL
+        document.querySelectorAll('#tracking-win, #notes-win').forEach(win => {
+            if (!win) return; // Nếu không tìm thấy cửa sổ thì bỏ qua, đéo cho crash code
+            
+            const header = win.querySelector('.title-bar');
+            if (!header) return; // Nếu cửa sổ không có thanh header kéo thì cũng bỏ qua
+
+            let isDragging = false;
+            let offsetX, offsetY;
+
+            // Click vào bất kỳ đâu trên cửa sổ đều làm nó nổi lên trên cùng (Z-Index)
+            win.addEventListener('pointerdown', () => focusWindow(win));
+
+            header.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                offsetX = e.clientX - win.getBoundingClientRect().left;
+                offsetY = e.clientY - win.getBoundingClientRect().top;
+                header.style.cursor = 'grabbing';
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                win.style.left = `${e.clientX - offsetX}px`;
+                win.style.top = `${e.clientY - offsetY}px`;
+            });
+
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                header.style.cursor = 'move';
+            });
+        });
+    </script>
+</body>
+</html>

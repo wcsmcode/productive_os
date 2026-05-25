@@ -2,7 +2,7 @@ import {React, useState, useEffect} from 'react';
 import * as Lucide from 'lucide-react';
 import { supabase } from '/src/lib/supabase.js';
 import { AuthService } from '/src/lib/supabase.js';
-import { useAuthStore } from '/src/lib/store.js';
+import { useAuthStore, useMusicStore } from '/src/lib/store.js';
 
 // 1. Khuôn cho Icon App (App Icon Template)
 const AppLauncher = ({ id, iconName, label, onClick, variant = "icon" }) => {
@@ -54,26 +54,33 @@ const AppLauncher = ({ id, iconName, label, onClick, variant = "icon" }) => {
   // TRƯỜNG HỢP 2: RENDER DẠNG WIDGET (NHẠC LOFI HOẶC STATS THEO ẢNH MOCKUP)
   if (variant === "widget") {
     if (id === 'music') {
+      // Hút trực tiếp trạng thái đồng bộ từ Store về
+      const { isPlaying, togglePlay, songs, currentSongIndex } = useMusicStore();
+      const currentSong = songs[currentSongIndex];
+
       return (
-        <div className="w-48 bg-[#E2E2E2] border-2 border-black rounded-xl p-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center gap-2 relative">
-          <span className="text-[8px] font-black opacity-40 uppercase tracking-widest">Zen Audio</span>
+        <div className="w-48 bg-[#E2E2E2] border-2 border-black rounded-xl p-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center gap-2 relative shrink-0">
+          <span className="text-[8px] font-black opacity-40 uppercase tracking-widest truncate w-full text-center">
+            {isPlaying ? `🎵 ${currentSong.title}` : 'Zen Audio'}
+          </span>
           
-          {/* Đĩa Vinyl Mini mô phỏng mockup */}
+          {/* Click vào thân đĩa bự ngoài Desktop vẫn mở app cửa sổ như cũ */}
           <div 
-            onClick={onClick} /* Bấm vào widget vẫn mở app cài đặt hệ thống */
-            className="w-20 h-20 rounded-full bg-[#1A1A17] border-2 border-black flex items-center justify-center cursor-pointer group relative"
+            onClick={onClick} 
+            className="w-20 h-20 rounded-full bg-[#1A1A17] border-2 border-black flex items-center justify-center cursor-pointer group relative overflow-hidden"
           >
-            <div className={`w-full h-full rounded-full border border-white/5 absolute ${isPlaying ? 'animate-spin' : ''}`} style={{ animationDuration: '3s' }}></div>
-            <div className="w-7 h-7 rounded-full bg-[#D8D1B4] border border-black flex items-center justify-center">
+            {/* Đĩa Than Mini tự động quay khi Store báo isPlaying = true */}
+            <div className={`w-full h-full rounded-full border border-white/5 absolute ${isPlaying ? 'animate-spin' : ''}`} style={{ animationDuration: '4s' }}></div>
+            <div className="w-7 h-7 rounded-full bg-[#D8D1B4] border border-black flex items-center justify-center z-10">
               <div className="w-1.5 h-1.5 rounded-full bg-black"></div>
             </div>
           </div>
 
-          {/* Nút bấm chơi nhạc nhanh */}
+          {/* Nút bấm Play/Pause nhanh ngay trên Desktop */}
           <button 
             onClick={(e) => {
-              e.stopPropagation(); // Ngăn mở app cửa sổ khi chỉ muốn bấm Play nhạc nhanh
-              setIsPlaying(!isPlaying);
+              e.stopPropagation(); // Không cho nổ cửa sổ App lên khi chỉ muốn bấm Play nhanh
+              togglePlay(); // Gọi store, cả app to và widget nhỏ cùng đổi trạng thái
             }}
             className="w-8 h-8 rounded-full border-2 border-black bg-white flex items-center justify-center active:scale-95 transition-transform"
           >
