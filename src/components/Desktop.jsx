@@ -1,6 +1,7 @@
 import { React, useState, useEffect } from 'react';
 import Items from './Items.jsx';
 import { supabase } from '/src/lib/supabase.js';
+import {YoutubePlayerEngine} from './app/Music.jsx';
 
 const Desktop = ({ onOpenApp }) => {
   const [Loading, setLoading] = useState(true);
@@ -94,6 +95,7 @@ const Desktop = ({ onOpenApp }) => {
               />
             ))}
         </aside>
+        <YoutubePlayerEngine />
       </div>
     </>
   );

@@ -35,62 +35,14 @@ const useTrackingStore = create((set, get) => ({
 
 ////////
 
+// Khai báo danh sách bài hát bằng YouTube Video ID (Ví dụ lấy các bài French Cafe Jazz, Lofi)
 const songs = [
-  { id: 1, title: "Midnight Lofi Chill", artist: "Zen Audio Studio", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-  { id: 2, title: "Coffee Shop Beats", artist: "Solo Architect", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-  { id: 3, title: "Cyberpunk Coding Session", artist: "System Core", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
+  { id: "UM4mcdNMnss", title: "1940s Vintage Jazz", artist: "Lepreezy" },
+  { id: "6H-PLF2CR18", title: "1 hr lofi", artist: "Lofi Keep You Safe" },
+  { id: "akpLkQd8WnE", title: "White noise (wind and blur)", artist: "Nature" }
 ];
 
-// Khởi tạo một đối tượng Audio ĐƠN NHIỆM trên RAM (Chống tràn bộ nhớ)
-let globalAudio;
-
-const createAudio = (url, set, get) => {
-  const audio = new Audio(url);
-
-  audio.addEventListener('timeupdate', () => {
-    try {
-      set({ currentTime: audio.currentTime });
-      console.log("Current Time:", audio.currentTime);
-    } catch (error) {
-      console.error("Error updating current time:", error);
-    }
-  });
-
-  audio.addEventListener('loadeddata', () => {
-    set({ duration: audio.duration });
-  });
-
-  audio.addEventListener('ended', () => {
-    get().nextSong();
-  });
-
-  return audio;
-};
-
 const useMusicStore = create((set, get) => {
-  const initAudio = () => {
-    globalAudio = createAudio(songs[0].url, set, get);
-    globalAudio.volume = 0.4;
-  };
-
-  initAudio();
-
-  const changeSong = (index, shouldPlay = false) => {
-    const { volume, isPlaying } = get();
-    if (globalAudio) {
-      globalAudio.pause();
-    }
-
-    globalAudio = createAudio(songs[index].url, set, get);
-    globalAudio.volume = volume;
-
-    set({ currentSongIndex: index, currentTime: 0, duration: 0, isPlaying: shouldPlay || isPlaying });
-
-    if (shouldPlay || isPlaying) {
-      globalAudio.play().catch(err => console.log(err));
-    }
-  };
-
   return {
     songs,
     currentSongIndex: 0,
@@ -98,56 +50,72 @@ const useMusicStore = create((set, get) => {
     currentTime: 0,
     duration: 0,
     volume: 0.4,
+    youtubePlayer: null, // 👈 Nơi lưu trữ bộ điều khiển YouTube chạy ngầm
 
-    // Bật / Tắt nhạc đồng bộ
+    // 1. Hàm nhận thực thể player từ component sinh ra
+    setYoutubePlayer: (player) => set({ youtubePlayer: player }),
+    
+    // Đồng bộ thời gian thực từ YouTube lên Store để chạy thanh cuộn
+    setTrackingTime: (curr, dur) => set({ currentTime: curr, duration: dur }),
+
+    // 2. Bật / Tắt nhạc đồng bộ qua SDK YouTube
     togglePlay: () => {
-      const { isPlaying, volume } = get();
-      globalAudio.volume = volume;
-      console.log("play toggled, curr:", globalAudio.currentTime);
+      const { isPlaying, youtubePlayer } = get();
+      if (!youtubePlayer) return;
+
       if (isPlaying) {
-        globalAudio.pause();
+        youtubePlayer.pauseVideo();
       } else {
-        globalAudio.play().catch(err => console.log("Chờ tương tác người dùng:", err));
+        youtubePlayer.playVideo();
       }
       set({ isPlaying: !isPlaying });
     },
 
-    // Hàm "Tử Thần" - Tắt hẳn nhạc khi đóng cửa sổ App
-    stopMusic: () => {
-      globalAudio.pause();
-      set({ isPlaying: false });
-    },
-
     // Next Bài
     nextSong: () => {
-      const { currentSongIndex, songs } = get();
+      const { currentSongIndex, songs, youtubePlayer } = get();
       const nextIndex = (currentSongIndex + 1) % songs.length;
-      changeSong(nextIndex);
+      set({ currentSongIndex: nextIndex, currentTime: 0, duration: 0 });
+      if (youtubePlayer) {
+        youtubePlayer.loadVideoById(songs[nextIndex].id);
+      }
     },
 
     // Lùi Bài
     prevSong: () => {
-      const { currentSongIndex, songs } = get();
+      const { currentSongIndex, songs, youtubePlayer } = get();
       const prevIndex = (currentSongIndex - 1 + songs.length) % songs.length;
-      changeSong(prevIndex);
+      set({ currentSongIndex: prevIndex, currentTime: 0, duration: 0 });
+      if (youtubePlayer) {
+        youtubePlayer.loadVideoById(songs[prevIndex].id);
+      }
     },
 
     // Click chọn thẳng 1 bài trong Playlist
     selectSong: (index) => {
-      changeSong(index, true);
+      const { songs, youtubePlayer } = get();
+      set({ currentSongIndex: index, currentTime: 0, duration: 0, isPlaying: true });
+      if (youtubePlayer) {
+        youtubePlayer.loadVideoById(songs[index].id);
+      }
     },
 
     setVolume: (v) => {
-      globalAudio.volume = v;
       set({ volume: v });
+      const { youtubePlayer } = get();
+      if (youtubePlayer) {
+        youtubePlayer.setVolume(v * 100); // API YouTube nhận từ 0 đến 100
+      }
     },
 
     setCurrentTime: (time) => {
-      globalAudio.currentTime = time;
       set({ currentTime: time });
+      const { youtubePlayer } = get();
+      if (youtubePlayer) {
+        youtubePlayer.seekTo(time, true);
+      }
     }
   };
 });
-
 
 export { useAuthStore, useTrackingStore, useMusicStore };

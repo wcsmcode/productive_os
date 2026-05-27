@@ -30,7 +30,7 @@ function App() {
       settings: { w: 900, h: 650 },
       notes: { w: 835, h: 635 },
       tracking: { w: 1040, h: 670 },
-      music: { w: 770, h: 670 },
+      music: { w: 770, h: 620 },
       //
       addtaskpopup: { w: 300, h: 350 },
       addtrackingstats: { w: 800, h: 600 }

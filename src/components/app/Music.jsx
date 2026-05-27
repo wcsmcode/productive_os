@@ -1,6 +1,110 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, SkipForward, SkipBack, Volume2, Music as MusicIcon } from 'lucide-react';
+import { Play, Pause, SkipForward, SkipBack, Volume2, Music as MusicIcon, CircleAlert } from 'lucide-react';
 import { useMusicStore } from '/src/lib/store.js';
+
+const YoutubePlayerEngine = () => {
+  const { currentSongIndex, songs, setYoutubePlayer, setTrackingTime, nextSong, volume } = useMusicStore();
+  const playerRef = useRef(null);
+  const intervalRef = useRef(null); // Dùng ref để quản lý setInterval, tránh bị leak bộ nhớ
+
+  useEffect(() => {
+    // 1. Tải thư viện IFrame Player API từ Google nếu chưa có
+    if (!window.YT) {
+      const tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      window.onYouTubeIframeAPIReady = initPlayer;
+    } else {
+      initPlayer();
+    }
+
+    function initPlayer() {
+      // Bảo vệ: Nếu player đã tồn tại thì phá hủy cái cũ trước khi tạo cái mới (tránh trùng lặp origin)
+      if (playerRef.current) {
+        try { playerRef.current.destroy(); } catch(e){}
+      }
+
+      playerRef.current = new window.YT.Player('hidden-youtube-dom', {
+        height: '0',
+        width: '0',
+        videoId: songs[currentSongIndex].id,
+        playerVars: {
+          autoplay: 0,
+          controls: 0,
+          rel: 0,
+          modestbranding: 1,
+          iv_load_policy: 3,
+          enablejsapi: 1,
+          // 🔥 ĐÚT CÁI NÀY VÀO ĐỂ FIX LỖI postMessage CHÍ MẠNG
+          origin: window.location.origin 
+        },
+        events: {
+          onReady: (event) => {
+            setYoutubePlayer(event.target);
+            event.target.setVolume(volume * 100);
+
+            // Dọn dẹp interval cũ nếu có
+            if (intervalRef.current) clearInterval(intervalRef.current);
+
+            // VÒNG LẶP KIỂM TRA QUẢNG CÁO & TRACKING TIME
+            intervalRef.current = setInterval(() => {
+              try {
+                const player = event.target;
+                
+                // Đảm bảo player đã thực sự sẵn sàng nhận lệnh postMessage từ host
+                if (typeof player.getDuration !== 'function') return;
+
+                const duration = player.getDuration();
+                const currentTime = player.getCurrentTime();
+
+                // ⚡ AUTO-SKIP QUẢNG CÁO
+                if (duration > 0 && duration < 300) {
+                  console.log("Phát hiện quảng cáo, đang tiến hành nhảy cóc...");
+                  player.seekTo(duration - 0.5, true);
+                  return;
+                }
+
+                // Cập nhật cây kim đĩa than chạy thời gian thực
+                if (player.getPlayerState() === window.YT.PlayerState.PLAYING) {
+                  setTrackingTime(currentTime, duration);
+                }
+              } catch (err) {
+                // Nuốt lỗi thông báo từ postMessage nếu có độ trễ kết nối ở 1-2 giây đầu
+              }
+            }, 500);
+          },
+          onStateChange: (event) => {
+            if (event.data === window.YT.PlayerState.ENDED) {
+              nextSong();
+            }
+          },
+          onError: (event) => {
+            // Log lỗi để debug nếu video bị chết link hoặc không cho phép nhúng
+            console.error("YouTube Player Error Code:", event.data);
+            // Gợi ý: Nếu lỗi 101 hoặc 150 (Chủ sở hữu cấm nhúng app ngoài), tự động skip qua bài khác luôn
+            if (event.data === 101 || event.data === 150) {
+              nextSong();
+            }
+          }
+        }
+      });
+    }
+
+    // dọn dẹp khi unmount component
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
+
+  return (
+    // Mẹo: Đổi w-0 h-0 thành w-1 h-1 để kiểm tra xem video có thực sự xuất hiện không khi debug
+    <div className="absolute w-0 h-0 opacity-0 pointer-events-none overflow-hidden border-none m-0 p-0">
+      <div id="hidden-youtube-dom"></div>
+    </div>
+  );
+};
+
 
 const Music = () => {
     // Gọi toàn bộ hàng nóng từ Store về xài
@@ -8,8 +112,6 @@ const Music = () => {
         songs, currentSongIndex, isPlaying, currentTime, duration, volume,
         togglePlay, nextSong, prevSong, setVolume, setCurrentTime, selectSong 
     } = useMusicStore();
-
-    const [curentTimeState, setCurentTimeState] = useState(0);
 
     const currentSong = songs[currentSongIndex];
 
@@ -47,9 +149,24 @@ const Music = () => {
 
             {/* VÙNG CHÍNH - ĐĨA THAN TO */}
             <main className="flex-1 p-6 flex flex-col justify-between items-center bg-[#F4F1E1]/30">
-                <header className="w-full text-center">
-                    <h1 className="text-lg font-black uppercase italic truncate max-w-[400px] mx-auto">{currentSong.title}</h1>
-                    <p className="text-[10px] uppercase font-bold opacity-50 tracking-wider">{currentSong.artist}</p>
+                <header className="flex items-center justify-center relative w-full border-b-2 border-[#2A2820]/10 pb-4">
+                    {/* Cụm chữ tiêu đề căn giữa tuyệt đối */}
+                    <div className="text-center">
+                        <h1 className="text-lg font-black uppercase italic truncate max-w-[360px] mx-auto tracking-tight">
+                            {currentSong?.title || "Loading Track..."}
+                        </h1>
+                        <p className="text-[10px] uppercase font-bold opacity-60 tracking-widest mt-0.5">
+                            {currentSong?.artist || "Unknown Artist"}
+                        </p>
+                    </div>
+
+                    {/* ICON CREDIT BỌC THÉP PHÁP LÝ - Đặt lệch sang phải tinh tế, căn giữa theo trục dọc */}
+                    <div className="absolute right-2 flex items-center">
+                        <CircleAlert 
+                            size={13} 
+                            className="opacity-40 hover:opacity-100 transition-opacity cursor-help" 
+                        />
+                    </div>
                 </header>
 
                 {/* ĐĨA THAN VÀ CẦN KIM CO CỨNG CHỐNG MÓP BIẾN DẠNG */}
@@ -103,5 +220,5 @@ const Music = () => {
         </div>
     );
 };
-
+export { YoutubePlayerEngine };
 export default Music;
