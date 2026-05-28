@@ -1,0 +1,21 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/app/auth.html",
+      "destination": "/app/auth.html"
+    },
+    {
+      "source": "/app/home.html",
+      "destination": "/app/home.html"
+    },
+    {
+      "source": "/guest/guest.html",
+      "destination": "/guest/guest.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
