@@ -1,5 +1,5 @@
 import React from 'react';
-import Items from './items.jsx';
+import Items from './Items.jsx';
 
 const Taskbar = () => {
   const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
