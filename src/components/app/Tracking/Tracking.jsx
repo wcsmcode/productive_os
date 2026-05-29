@@ -7,9 +7,12 @@ import {SkipForward,Settings,RefreshCcw, Play, X, Pause} from 'lucide-react';
 import { div } from 'framer-motion/client';
 
 const Tracking = ({onOpenApp}) => {
+    //CONFIGURATION
+    const PRODUCTIVE_OS_EXT_ID = "daanfikdjingdknbgmfgkdaedgblajen";
     //User
     const [countSkip, setcountSkip] = useState(0);
     const [countFinish, setCountFinish] = useState(0);
+    const [countStreaks, setCountStreaks] = useState(0);
     // ==== STATES & STORES ====
     const [UserProfile, setUserProfile] = useState({ name: 'Solo Architect', avatar: 'S' });
     const [timeLeft, setTimeLeft] = useState(25 * 60);
@@ -78,9 +81,11 @@ const Tracking = ({onOpenApp}) => {
                         // Coerce undefined/null values to 0 to keep state deterministic
                         const updatedFinished = newData.finishedTasks ?? 0;
                         const updatedSkipped = newData.skippedSession ?? 0;
+                        const updatedStreaks = newData.streaks ?? 0;
 
                         setCountFinish(updatedFinished);
                         setcountSkip(updatedSkipped);
+                        setCountStreaks(updatedStreaks);
                     }
                 )
                 
@@ -171,21 +176,24 @@ const Tracking = ({onOpenApp}) => {
             if (currentUser) {
                 const { data, error } = await supabase
                     .from('profiles')
-                    .select('skippedSession, finishedTasks')
+                    .select('skippedSession, finishedTasks, focusStreaks')
                     .eq('id', currentUser.id) // Dùng currentUser.id thay vì user.id
                     .single();
 
                 if (!error && data) {
                     const finishedVal = data?.finishedTasks ?? 0;
                     const skippedVal = data?.skippedSession ?? 0;
+                    const streaksVal = data?.focusStreaks ?? 0;
 
                     setcountSkip(skippedVal);
                     setCountFinish(finishedVal);
+                    setCountStreaks(streaksVal);
 
                     // debug log with coerced values to avoid showing `undefined`
                     console.log('profile load', {
                         finishedTasks: finishedVal,
                         skippedSession: skippedVal,
+                        focusStreaks: streaksVal,
                         stateCountFinish: finishedVal,
                         stateCountSkip: skippedVal,
                     });
@@ -254,7 +262,7 @@ const Tracking = ({onOpenApp}) => {
     // --- ACTIONS ---
     const handleTimerComplete = async () => {
         setIsActive(false);
-
+        stopFocusSession(); // Gọi extension để dừng session
         if (alarmRef.current) {
             alarmRef.current.volume = 0.2;
             alarmRef.current.play().catch((error) => {
@@ -273,8 +281,11 @@ const Tracking = ({onOpenApp}) => {
 
         // 2. Cập nhật UI trước cho mượt
         const currentCount = Number.isFinite(countFinish) ? countFinish : 0;
+        const currentStreaksCount = Number.isFinite(countStreaks) ? countStreaks : 0;
         const nextCount = currentCount + 1;
+        const nextStreaks = currentStreaksCount + 1;
         setCountFinish(nextCount);
+        setCountStreaks(nextStreaks);
         console.log('session updated ->', nextCount, '(previous countFinish:', countFinish, ')');
         
         try {
@@ -298,7 +309,7 @@ const Tracking = ({onOpenApp}) => {
             promises.push(
                 supabase
                     .from('profiles')
-                    .update({ finishedTasks: nextCount })
+                    .update({ finishedTasks: nextCount, focusStreaks: nextStreaks }) // Tăng streaks lên 1 mỗi khi hoàn thành
                     .eq('id', activeUser.id)
             );
 
@@ -311,11 +322,8 @@ const Tracking = ({onOpenApp}) => {
             });
 
             console.log(`Updated DB successfully for user ${activeUser.id}. Total finished tasks: ${nextCount}`);
+            logFocusTime(activeUser.id, 25); // Gọi hàm log thời gian tập trung vào bảng focus_stats
 
-            // Xóa task cũ khỏi danh sách hoạt động nếu có ID
-            // if (activeTask && activeTask.id) {
-            //     handleDeleteTask(activeTask.id);
-            // }
 
         } catch (dbError) {
             // Hoàn tác (Rollback) UI nếu lỗi rớt mạng/DB sập
@@ -327,6 +335,7 @@ const Tracking = ({onOpenApp}) => {
 
     const toggleTimer = () => {
         // QUICK START LOGIC: Nếu không có task mà bấm Play
+        startFocusSession(); // Gọi extension để bắt đầu session
         if (!isActive && !activeTask.id) {
             const quickId = self.crypto.randomUUID();
             const quickTitle = `Quick Session ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
@@ -348,7 +357,7 @@ const Tracking = ({onOpenApp}) => {
     const resetTimer = () => {
         if (window.confirm("Mày có chắc muốn reset lại đồng hồ không?")) {
             setIsActive(false);
-
+            stopFocusSession(); // Gọi extension để dừng session
             // Tìm cái task có ID trùng với task đang active
             const currentTask = tasks.find(t => t.id === activeTask.id);
 
@@ -448,6 +457,39 @@ const Tracking = ({onOpenApp}) => {
             console.error("Lỗi hệ thống khi xóa:", error.message);
             alert("Không thể xóa task. Kiểm tra lại kết nối!");
         }
+    };
+
+    // Extension communicate
+    const startFocusSession = () => {
+        if (window.chrome && chrome.runtime) {
+            chrome.runtime.sendMessage(PRODUCTIVE_OS_EXT_ID, { action: "START_FOCUS" }, (response) => {
+            console.log("Extension phản hồi:", response?.status);
+            });
+        } else {
+            console.warn("User chưa cài Chrome Extension chặn tab rác của Productive OS.");
+        }
+    };
+
+    const stopFocusSession = () => {
+        if (window.chrome && chrome.runtime) {
+            chrome.runtime.sendMessage(PRODUCTIVE_OS_EXT_ID, { action: "STOP_FOCUS" }, (response) => {
+            console.log("Extension phản hồi:", response?.status);
+            });
+        }
+    };
+
+    const logFocusTime = async (userId, minutes) => {
+        const today = new Date().toISOString().split('T')[0]; // Lấy ngày dạng YYYY-MM-DD
+
+        // Chiêu thức UPSERT bọc thép
+        const { data, error } = await supabase
+            .from('focus_stats')
+            .upsert(
+            { user_id: userId, date: today, total_minutes: minutes },
+            { onConflict: 'user_id,date' }
+            )
+            .select();
+            
     };
 
     return (

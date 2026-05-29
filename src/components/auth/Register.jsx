@@ -118,7 +118,7 @@ const Register = () => {
 
                 <div className="mt-8 text-center">
                     <p className="text-[10px] font-bold opacity-50 uppercase tracking-widest">
-                        Already registered? <a onClick={() => setcurrentState('SignIn')} className="text-[#2A2820] underline font-black hover:cursor-pointer">Authorize Session</a>
+                        Already registered? <a onClick={() => setcurrentState('Login')} className="text-[#2A2820] underline font-black hover:cursor-pointer">Authorize Session</a>
                     </p>
                 </div>
             </div>
