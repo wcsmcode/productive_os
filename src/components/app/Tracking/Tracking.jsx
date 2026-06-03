@@ -220,7 +220,6 @@ const Tracking = ({onOpenApp}) => {
         fetchProfile();
         fetchTasksFromDB();
     }, [setTasks]);
-
     // --- TIMER CORE ---
     useEffect(() => {
         if (!isActive) {
@@ -275,17 +274,14 @@ const Tracking = ({onOpenApp}) => {
         const activeUser = authData?.user || user; // Nếu lấy từ DB không kịp thì fallback về store
         // 1. Kiểm tra User trước (Điều kiện bắt buộc để đụng vào DB)
         if (!activeUser) {
-            console.error('🚨 [Backend] Không tìm thấy User session. Hủy toàn bộ tiến trình lưu DB.');
+            console.error('[Backend] Không tìm thấy User session. Hủy toàn bộ tiến trình lưu DB.');
             return;
         }
 
         // 2. Cập nhật UI trước cho mượt
         const currentCount = Number.isFinite(countFinish) ? countFinish : 0;
-        const currentStreaksCount = Number.isFinite(countStreaks) ? countStreaks : 0;
         const nextCount = currentCount + 1;
-        const nextStreaks = currentStreaksCount + 1;
         setCountFinish(nextCount);
-        setCountStreaks(nextStreaks);
         console.log('session updated ->', nextCount, '(previous countFinish:', countFinish, ')');
         
         try {
@@ -302,14 +298,14 @@ const Tracking = ({onOpenApp}) => {
                         .eq('id', activeTask.id)
                 );
             } else {
-                console.warn('⚠️ [Backend] Chạy Timer tự do (Không có Task ID). Bỏ qua update pomodoro_cycles.');
+                console.warn('[Backend] Chạy Timer tự do (Không có Task ID). Bỏ qua update pomodoro_cycles.');
             }
 
             // Luôn luôn thêm lệnh cập nhật Profile của User
             promises.push(
                 supabase
                     .from('profiles')
-                    .update({ finishedTasks: nextCount, focusStreaks: nextStreaks }) // Tăng streaks lên 1 mỗi khi hoàn thành
+                    .update({ finishedTasks: nextCount}) // Tăng streaks lên 1 mỗi khi hoàn thành
                     .eq('id', activeUser.id)
             );
 
@@ -322,7 +318,8 @@ const Tracking = ({onOpenApp}) => {
             });
 
             console.log(`Updated DB successfully for user ${activeUser.id}. Total finished tasks: ${nextCount}`);
-            logFocusTime(activeUser.id, 25); // Gọi hàm log thời gian tập trung vào bảng focus_stats
+            const currentTask = tasks.find(t => t.id === activeTask.id);
+            logFocusTime(activeUser.id, currentTask.duration_minutes); // Gọi hàm log thời gian tập trung vào bảng focus_stats
 
 
         } catch (dbError) {
@@ -330,6 +327,25 @@ const Tracking = ({onOpenApp}) => {
             setCountFinish(Number.isFinite(countFinish) ? countFinish : 0);
             console.error(dbError.message);
             alert('An error occurred');
+        }
+    };
+    const logFocusTime = async (userId, minutes) => {
+        const today = new Date().toLocaleDateString('sv-SE'); 
+
+        try {
+            // Gọi trực tiếp hàm RPC đã tạo ở Bước 1
+            const { data, error } = await supabase
+                .rpc('increment_focus_minutes', { 
+                    p_user_id: userId, 
+                    p_date: today, 
+                    p_minutes: minutes 
+                });
+
+            if (error) throw error;
+            
+            console.log(`[Heatmap Engine] Đã cộng dồn thành công ${minutes} phút vào ngày ${today}`);
+        } catch (err) {
+            console.error('[Heatmap Update Failed]:', err.message);
         }
     };
 
@@ -355,7 +371,7 @@ const Tracking = ({onOpenApp}) => {
     };
 
     const resetTimer = () => {
-        if (window.confirm("Mày có chắc muốn reset lại đồng hồ không?")) {
+        if (window.confirm("Reset this session? Progress will be lost!")) {
             setIsActive(false);
             stopFocusSession(); // Gọi extension để dừng session
             // Tìm cái task có ID trùng với task đang active
@@ -372,7 +388,7 @@ const Tracking = ({onOpenApp}) => {
     };
 
     const skipSession = async () => {
-        if (window.confirm("Bỏ qua phiên này nhé?")) {
+        if (window.confirm("Skip this session? Progress will be lost!")) {
             setIsActive(false);
             console.log('prev: ',countSkip);
             const nextCount = countSkip + 1;
@@ -431,7 +447,7 @@ const Tracking = ({onOpenApp}) => {
     // Danger zone
 
     const handleDeleteTask = async (taskId) => {
-        if (!window.confirm("Xóa bản ghi này khỏi hệ thống, Architect?")) return;
+        if (!window.confirm("Delete this record from the system, Architect?")) return;
 
         try {
             // 2. Xóa trên Database (Supabase)
@@ -478,19 +494,7 @@ const Tracking = ({onOpenApp}) => {
         }
     };
 
-    const logFocusTime = async (userId, minutes) => {
-        const today = new Date().toISOString().split('T')[0]; // Lấy ngày dạng YYYY-MM-DD
-
-        // Chiêu thức UPSERT bọc thép
-        const { data, error } = await supabase
-            .from('focus_stats')
-            .upsert(
-            { user_id: userId, date: today, total_minutes: minutes },
-            { onConflict: 'user_id,date' }
-            )
-            .select();
-            
-    };
+    
 
     return (
         <div className="flex h-[600px] w-[1000px] bg-[#D8D1B4] text-[#2A2820] border-2 border-[#2A2820] rounded-xl overflow-hidden shadow-[8px_8px_0px_0px_rgba(42,40,32,0.1)] font-sans">   

@@ -162,10 +162,29 @@ const Music = () => {
 
                     {/* ICON CREDIT BỌC THÉP PHÁP LÝ - Đặt lệch sang phải tinh tế, căn giữa theo trục dọc */}
                     <div className="absolute right-2 flex items-center">
-                        <CircleAlert 
-                            size={13} 
-                            className="opacity-40 hover:opacity-100 transition-opacity cursor-help" 
-                        />
+                        <div className="group relative inline-block">
+                            <CircleAlert 
+                                size={13}
+                                onClick={() => window.location.href = '/app/docs.html'}
+                                className="w-5 h-5 rounded-full border border-[#2A2820] flex items-center justify-center text-[11px] font-black hover:bg-[#2A2820] hover:text-[#D8D1B4] transition-colors duration-150 cursor-pointer"
+                            />
+                            <div className="pointer-events-none absolute top-full right-0 z-30 mb-2 w-56 rounded-md bg-[#2A2820] text-[#D8D1B4] p-3 text-left font-mono shadow-xl transition-all duration-200 border border-[#D8D1B4]/20
+                              invisible opacity-0 scale-95 translate-y-1
+                              group-hover:visible group-hover:opacity-100 group-hover:scale-100 group-hover:translate-y-0">
+                              
+                              {/* Nội dung text của mày */}
+                              <p className="text-[10px] leading-relaxed mb-1 opacity-90">
+                                All audio tracks here are played by an embedded YouTube player. Audio copyrights, views, and song revenue belong to the author.
+                              </p>
+                              
+                              <div className="text-[9px] font-bold uppercase tracking-wider text-amber-300 border-t border-[#D8D1B4]/10 pt-1 mt-1">
+                                Click for more info.
+                              </div>
+
+                              {/* Mũi tên nhỏ chỉ xuống nút chấm than */}
+                              <div className="absolute top-full right-2 h-2 w-2 -translate-y-1 bg-[#2A2820] rotate-45 border-r border-b border-[#D8D1B4]/10"></div>
+                            </div>
+                        </div>
                     </div>
                 </header>
 
