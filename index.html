@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Productive OS — Cloud-Powered Deep Work Environment</title>
 
-    <title>Productive OS — Minimalist Deep Work Operating System</title>
-
-    <meta name="description" content="Productive OS is a distraction-free productivity environment built for deep work, focus sessions, Pomodoro tracking, and minimalist workflows.">
+    <meta name="description" content="Productive OS is a cloud-synced, distraction-free environment built for deep work, gamified focus metrics, and uninterrupted execution.">
 
     <meta property="og:title" content="Productive OS">
-    <meta property="og:description" content="A minimalist operating system for deep work and focus.">
+    <meta property="og:description" content="A minimalist operating system for deep work and cloud-synced focus.">
     <meta property="og:type" content="website">
     <meta property="og:image" content="/preview.png">
-    <meta property="og:url" content="https://yourdomain.com">
+    <meta property="og:url" content="https://productiveos.vercel.app">
 
     <meta name="twitter:card" content="summary_large_image">
 
@@ -63,6 +63,15 @@
         .animate-reveal {
             animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
+
+        /* Hiệu ứng con trỏ nhấp nháy cho chữ chạy */
+        .typewriter-cursor::after {
+            content: '|';
+            animation: blink 0.8s infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
     </style>
 </head>
 
@@ -102,24 +111,28 @@
 
 <main>
 
+    <!-- HERO SECTION: Nơi chứa tiêu đề chạy chữ động -->
     <section class="pt-16 md:pt-24 px-6 overflow-hidden">
         <div class="max-w-5xl mx-auto text-center">
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#1C1A15]/10 bg-[#1C1A15]/5 mono text-[10px] font-bold uppercase tracking-[0.2em] animate-reveal">
                 <span class="w-2 h-2 rounded-full bg-[#2A2620] animate-pulse"></span>
-                System v1.0.5 — Compiling Alpha Slots
+                System v1.1.0 — Cloud Sync Active
             </div>
 
-            <h1 class="mt-8 text-5xl md:text-7xl font-black leading-[0.95] tracking-tighter uppercase骨 animate-reveal">
-                THE OPERATOR ENVIRONMENT FOR SOLO DEVELOPERS.
+            <!-- TIÊU ĐỀ CHẠY CHỮ ĐỘNG (Dùng Javascript xử lý mượt mà phía dưới) -->
+            <h1 class="mt-8 text-4xl md:text-6xl font-black leading-[1.1] tracking-tighter uppercase animate-reveal h-[120px] md:h-[140px]">
+                A productive operating system for <br class="hidden md:inline">
+                <span id="dynamic-text" class="text-transparent bg-clip-text bg-gradient-to-r from-[#1C1A15] to-[#4A5D4E] typewriter-cursor"></span>
             </h1>
-
+            <br>
+            <br>
             <p class="mt-8 text-lg md:text-xl text-[#1C1A15]/75 max-w-3xl mx-auto leading-relaxed animate-reveal">
-                A minimal, keyboard-driven desktop environment simulated inside your browser. Isolate your focus, dump your terminal scratchpads, and execute tasks without the desktop noise.
+                A simulated desktop environment built natively inside your browser. Log in from any machine, lock your focus, stream curated focus frequencies, and turn your real-world progression into a level-up grid.
             </p>
 
             <div class="flex flex-col sm:flex-row justify-center items-center gap-5 mt-10 animate-reveal">
-                <a href="#pricing" class="bg-[#1C1A15] text-[#E4DFC8] px-10 py-5 rounded-lg font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:-translate-y-0.5 transition-all">
-                    PRE-ORDER ARCHITECT LICENSE — $19
+                <a onclick="window.location.href='/app/auth.html'" class="bg-[#1C1A15] text-[#E4DFC8] px-10 py-5 rounded-lg font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:-translate-y-0.5 transition-all">
+                    GET EARLY BETA ACCESS
                 </a>
 
                 <button onclick="window.location.href='/guest/guest.html'" class="font-bold text-sm underline underline-offset-4 hover:opacity-70 transition mono uppercase tracking-wider">
@@ -128,7 +141,7 @@
             </div>
 
             <div class="mt-8 text-sm text-[#1C1A15]/55 font-medium mono">
-                [!] Built for operators who value uninterrupted deep work loops.
+                [!] Built secure. Your focus data is synchronized across devices via secure cloud authentication.
             </div>
         </div>
 
@@ -137,89 +150,100 @@
                 <div class="rounded-xl overflow-hidden aspect-video relative bg-[#DED9C4]">
                     <video autoplay loop muted playsinline class="w-full h-full object-cover">
                         <source src="/video/Demo.mp4" type="video/mp4" alt="Productive OS demo video">
-                        </video>
+                    </video>
                 </div>
             </div>
             <div class="absolute -z-10 top-0 left-1/2 -translate-x-1/2 w-[70%] h-full bg-[#2A2620]/5 blur-[80px] rounded-full"></div>
         </div>
     </section>
 
+    <!-- CORE FEATURES SECTION: Viết lại chuẩn theo bộ tính năng thật của mày -->
     <section id="features" class="max-w-7xl mx-auto px-6 md:px-8 py-28">
         <div class="max-w-2xl mb-16">
             <h2 class="text-4xl md:text-5xl font-black tracking-tighter uppercase">
                 NATIVE MODULES
             </h2>
             <p class="mt-5 text-lg text-[#1C1A15]/70 leading-relaxed">
-                Pre-installed essentials designed inside a singular view protocol to completely eliminate context-switching.
+                Zero bloated features. Just a highly refined stack of core protocols to completely isolate your context-switching.
             </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             
-            <article class="p-8 bg-[#E4DFC8] rounded-2xl border border-[#1C1A15]/10 md:col-span-2 flex flex-col justify-between min-h-[280px]">
+            <!-- MODULE 1: POMODORO -->
+            <article class="p-8 bg-[#E4DFC8] rounded-2xl border border-[#1C1A15]/10 flex flex-col justify-between min-h-[260px]">
                 <div>
-                    <div class="mono text-[10px] font-bold uppercase tracking-widest text-[#1C1A15]/40 mb-4">01 / CORE STRUCTURE</div>
-                    <h3 class="text-3xl font-black tracking-tight uppercase">SIMULATED OS ARCHITECTURE</h3>
-                    <p class="mt-4 text-[#1C1A15]/70 max-w-xl leading-relaxed">
-                        Not a generic single-page app. This simulates a completely isolated desktop environment natively in your browser tab. Open, drag, and stack specialized tools seamlessly without messy multi-tab overhead.
+                    <div class="mono text-[10px] font-bold uppercase tracking-widest text-[#1C1A15]/40 mb-4">01 / ENGINE</div>
+                    <h3 class="text-2xl font-black tracking-tight uppercase">INTEGRATED POMODORO</h3>
+                    <p class="mt-3 text-[#1C1A15]/70 text-sm leading-relaxed">
+                        An execution countdown hard-locked into your workspace. Zero friction, zero setup overhead, and not a single wasted click. Launch your focus loop instantly.
                     </p>
                 </div>
-                <div class="mt-6 pt-4 border-t border-[#1C1A15]/5 flex gap-4 text-xs font-bold mono opacity-60">
-                    <span>// SYSTEM_DRIVEN</span>
-                    <span>// LOCAL_FIRST</span>
+                <div class="mt-6 flex justify-between items-center text-xs font-bold mono opacity-60">
+                    <span>// EXECUTE_NOW</span>
+                    <span class="text-xl font-black tracking-tighter">25:00</span>
                 </div>
             </article>
 
-            <article class="p-8 bg-[#E4DFC8] rounded-2xl border border-[#1C1A15]/10 flex flex-col justify-between">
+            <!-- MODULE 2: TAKE NOTE CLOUD -->
+            <article class="p-8 bg-[#E4DFC8] rounded-2xl border border-[#1C1A15]/10 flex flex-col justify-between min-h-[260px]">
                 <div>
                     <div class="mono text-[10px] font-bold uppercase tracking-widest text-[#1C1A15]/40 mb-4">02 / STORAGE</div>
-                    <h3 class="text-2xl font-black tracking-tight uppercase">ZEN NOTES & SCRATCHPAD</h3>
+                    <h3 class="text-2xl font-black tracking-tight uppercase">CLOUD-SYNCED ZEN NOTES</h3>
                     <p class="mt-3 text-[#1C1A15]/70 text-sm leading-relaxed">
-                        A markdown-ready khay nhớ tạm designed exclusively for rapid brain-dumps. Instantly capture invasive thoughts, snippets, or tasks mid-session, then cleanly dump them into local cache without breaking flow.
+                        A rapid markdown scratchpad designed for instant brain-dumps. Capture invasive ideas or session workflows securely. Powered by cloud auth, your notes are safely preserved and synchronized across all your devices.
                     </p>
                 </div>
                 <div class="mt-6 flex items-center justify-between text-[11px] font-bold mono bg-[#1C1A15]/5 px-3 py-2 rounded">
-                    <span class="opacity-50">GLOBAL INPUT TRIGER</span>
-                    <span class="px-1.5 py-0.5 bg-[#1C1A15] text-[#E4DFC8] rounded text-[10px]">Alt + D</span>
+                    <span class="opacity-50">CLOUD PERSISTENCE LAYER</span>
+                    <span class="px-1.5 py-0.5 bg-[#1C1A15] text-[#E4DFC8] rounded text-[10px]">AUTH_ACTIVE</span>
                 </div>
             </article>
 
-            <article class="p-8 bg-[#E4DFC8] rounded-2xl border border-[#1C1A15]/10 flex flex-col justify-between">
+            <!-- MODULE 3: GAMIFIED STATS -->
+            <article class="p-8 bg-[#2A2620] text-[#DED9C4] rounded-2xl flex flex-col justify-between min-h-[280px] relative overflow-hidden">
                 <div>
-                    <div class="mono text-[10px] font-bold uppercase tracking-widest text-[#1C1A15]/40 mb-4">03 / APPLICATION</div>
-                    <h3 class="text-2xl font-black tracking-tight uppercase">INTEGRATED POMODORO</h3>
-                    <p class="mt-3 text-[#1C1A15]/70 text-sm leading-relaxed">
-                        An execution countdown hard-locked into your workspace view. Keeps your primary mission dead-center to forcefully suppress the urge to wander off to distracting sites.
-                    </p>
-                </div>
-                <div class="mt-6 text-2xl font-black tracking-tighter text-right opacity-30 mono">
-                    25:00
-                </div>
-            </article>
-
-            <article class="p-8 bg-[#2A2620] text-[#DED9C4] rounded-2xl md:col-span-2 flex flex-col justify-between relative overflow-hidden">
-                <div>
-                    <div class="mono text-[10px] font-bold uppercase tracking-widest text-white/40 mb-4">04 / METRICS PROTOCOL</div>
-                    <h3 class="text-3xl font-black tracking-tight uppercase text-white">CONTRIBUTION HEATMAPS</h3>
-                    <p class="mt-4 opacity-80 max-w-xl leading-relaxed">
-                        Track execution records through a dense, git-style heatmap grid directly matching the system analytics dashboard. Log intervals, lock discipline stats, and visualize cycles like code commits.
+                    <div class="mono text-[10px] font-bold uppercase tracking-widest text-white/40 mb-4">03 / LEVEL-UP ARCHITECTURE</div>
+                    <h3 class="text-3xl font-black tracking-tight uppercase text-white">REAL-WORLD PROGRESS STATS</h3>
+                    <p class="mt-4 opacity-80 text-sm leading-relaxed max-w-xl">
+                        Your life is not a spreadsheet, it's an RPG. Track execution records through a dense, git-style heatmap grid. Log sessions, trigger milestone achievements, and level up your discipline metrics in real life.
                     </p>
                 </div>
                 <div class="mt-8 flex items-center gap-3">
-                    <span class="px-2 py-1 rounded bg-[#4A5D4E] text-white text-[9px] uppercase tracking-wider font-bold mono">Status: Compiling...</span>
-                    <span class="text-xs font-medium opacity-40 mono">// Next sprint delivery</span>
+                    <span class="px-2 py-1 rounded bg-[#4A5D4E] text-white text-[9px] uppercase tracking-wider font-bold mono">SYSTEM: TRACKING_STATS</span>
+                    <span class="text-xs font-medium opacity-40 mono">// RPG Grid Engine</span>
                 </div>
-                <div class="absolute bottom-4 right-6 flex gap-1 items-end opacity-10 h-16">
-                    <div class="w-3 h-6 bg-white rounded-sm"></div>
-                    <div class="w-3 h-10 bg-white rounded-sm"></div>
-                    <div class="w-3 h-4 bg-white rounded-sm"></div>
-                    <div class="w-3 h-14 bg-white rounded-sm"></div>
-                    <div class="w-3 h-8 bg-white rounded-sm"></div>
+                <div class="absolute bottom-4 right-6 flex gap-1.5 items-end opacity-20">
+                    <div class="w-3 h-3 bg-[#4A5D4E] rounded-sm"></div>
+                    <div class="w-3 h-3 bg-[#4A5D4E]/40 rounded-sm"></div>
+                    <div class="w-3 h-3 bg-[#4A5D4E]/70 rounded-sm"></div>
+                    <div class="w-3 h-3 bg-white rounded-sm"></div>
                 </div>
             </article>
+
+            <!-- MODULE 4: AUDIO STREAM -->
+            <article class="p-8 bg-[#E4DFC8] rounded-2xl border border-[#1C1A15]/10 flex flex-col justify-between min-h-[280px]">
+                <div>
+                    <div class="mono text-[10px] font-bold uppercase tracking-widest text-[#1C1A15]/40 mb-4">04 / AUDIO PROTOCOL</div>
+                    <h3 class="text-2xl font-black tracking-tight uppercase">EDITOR'S PICKS AUDIO</h3>
+                    <p class="mt-3 text-[#1C1A15]/70 text-sm leading-relaxed">
+                        A built-in immersive audio stream module. No algorithms feeding you garbage music—just hand-picked, high-curation focus tracks designed to slide your brain directly into uninterrupted flow states.
+                    </p>
+                </div>
+                <div class="mt-6 flex items-center gap-2 text-xs font-bold mono bg-[#1C1A15]/5 px-3 py-2.5 rounded w-max">
+                    <div class="flex gap-0.5 items-end h-3 w-3">
+                        <div class="w-0.5 h-full bg-black animate-pulse"></div>
+                        <div class="w-0.5 h-2/3 bg-black animate-pulse"></div>
+                        <div class="w-0.5 h-1/3 bg-black animate-pulse"></div>
+                    </div>
+                    <span>STREAMING // FOCUS_FREQUENCY_01</span>
+                </div>
+            </article>
+
         </div>
     </section>
 
+    <!-- COMPARISON SECTION: Thay "Local-first" bằng "Cloud Encrypted" -->
     <section id="comparison" class="max-w-6xl mx-auto px-6 py-12">
         <div class="text-center max-w-2xl mx-auto mb-12">
             <h2 class="text-3xl font-black tracking-tighter uppercase">OPERATING ENVIRONMENT VS CLOUD NOISE</h2>
@@ -243,73 +267,78 @@
                     </tr>
                     <tr class="border-t border-[#1C1A15]/10 hover:bg-[#1C1A15]/5 transition-colors">
                         <td class="px-6 py-5 font-bold uppercase text-xs tracking-wider">Context Switching</td>
-                        <td class="px-6 py-5 font-semibold text-[#2A2620]">Zero. Dynamic Workspace Views</td>
+                        <td class="px-6 py-5 font-semibold text-[#2A2620]">Zero. Combined Workspace Views</td>
                         <td class="px-6 py-5 text-[#1C1A15]/60">High (Paging depth overhead)</td>
                         <td class="px-6 py-5 text-[#1C1A15]/60">Fatal (One click to YouTube)</td>
                     </tr>
                     <tr class="border-t border-[#1C1A15]/10 hover:bg-[#1C1A15]/5 transition-colors">
-                        <td class="px-6 py-5 font-bold uppercase text-xs tracking-wider">Data Privacy</td>
-                        <td class="px-6 py-5 font-semibold text-[#2A2620]">Local-First / Encrypted</td>
-                        <td class="px-6 py-5 text-[#1C1A15]/60">Cloud Centralized</td>
+                        <td class="px-6 py-5 font-bold uppercase text-xs tracking-wider">Data Sync</td>
+                        <td class="px-6 py-5 font-semibold text-[#2A2620]">Cloud Auth / Multi-Device Cross Sync</td>
+                        <td class="px-6 py-5 text-[#1C1A15]/60">Cloud Centralized (Shared Teams)</td>
                         <td class="px-6 py-5 text-[#1C1A15]/60">Ad-Tracked & Indexed</td>
+                    </tr>
+                    <tr class="border-t border-[#1C1A15]/10 hover:bg-[#1C1A15]/5 transition-colors">
+                        <td class="px-6 py-5 font-bold uppercase text-xs tracking-wider">Pricing</td>
+                        <td class="px-6 py-5 font-semibold text-[#2A2620]">less than $9 - a cup of coffee</td>
+                        <td class="px-6 py-5 text-[#1C1A15]/60">$10 - $20+ (for templates and pro features)</td>
+                        <td class="px-6 py-5 text-[#1C1A15]/60">Free - but full of distractions</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </section>
 
+    <!-- PRICING SECTION: Sửa lại phần tính năng của bảng giá -->
     <section id="pricing" class="max-w-7xl mx-auto px-6 md:px-8 py-32">
         <div class="text-center max-w-2xl mx-auto">
             <h2 class="text-4xl md:text-5xl font-black tracking-tighter uppercase">SYSTEM LICENSING</h2>
             <p class="mt-5 text-lg text-[#1C1A15]/70">
-                Secure temporary alpha tier pricing. Own your offline workspace architecture permanently.
+                spend $20 a month just to be able to focus? no thanks. Productive OS is available for a one-time payment, giving you permanent access to a productive environment
             </p>
         </div>
 
-        <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mt-16">
-            
-            <article class="p-10 bg-[#E4DFC8] border border-[#1C1A15]/10 rounded-2xl flex flex-col justify-between">
-                <div>
-                    <div class="mono text-[10px] uppercase tracking-[0.2em] text-[#1C1A15]/40 font-bold">Standard Spec</div>
-                    <h3 class="mt-4 text-3xl font-black uppercase tracking-tight">OPERATOR TIER</h3>
-                    <div class="mt-6 flex items-end gap-2">
-                        <span class="text-6xl font-black">$9</span>
-                        <span class="pb-2 text-[#1C1A15]/60 mono">/one-time</span>
-                    </div>
-                    <ul class="mt-8 space-y-4 text-[#1C1A15]/75 text-sm font-medium">
-                        <li>✓ Permanent Core OS Simulator Access</li>
-                        <li>✓ Standard Integrated Pomodoro App</li>
-                        <li>✓ Local Storage Zen Notes & Tasking</li>
-                        <li>✓ Lifetime Local Deployment Updates</li>
-                    </ul>
-                </div>
-                <button class="mt-10 w-full py-4 border-2 border-[#1C1A15] rounded-lg font-black uppercase tracking-[0.15em] text-xs hover:bg-[#1C1A15] hover:text-[#DED9C4] transition-all">
-                    PROCEED WITH OPERATOR LICENSING
-                </button>
-            </article>
-
-            <article class="p-10 bg-[#1C1A15] text-[#DED9C4] rounded-2xl shadow-2xl relative overflow-hidden flex flex-col justify-between">
+        <div class="max-w-2xl mx-auto mt-16">
+            <!-- THẺ BẢNG GIÁ DUY NHẤT - PHONG CÁCH DARK MODE ĐỂ LÀM NỔI BẬT KHÔNG GIAN OPERATOR -->
+            <article class="p-10 bg-[#1C1A15] text-[#DED9C4] rounded-2xl shadow-2xl relative overflow-hidden flex flex-col justify-between border border-[#1C1A15]">
+                
+                <!-- TAG ALPHA SLOT ĐỂ KÍCH THÍCH SỰ KHAN HIẾM -->
                 <div class="absolute top-5 right-5 bg-[#2A2620] border border-white/10 text-[#E4DFC8] px-3 py-1 rounded-full text-[9px] uppercase tracking-widest font-bold mono">
-                    ALPHA SLOT
+                    ALPHA ACCESS
                 </div>
+
                 <div>
-                    <div class="mono text-[10px] uppercase tracking-[0.2em] opacity-40 font-bold">Full Access Pass</div>
-                    <h3 class="mt-4 text-3xl font-black uppercase tracking-tight text-white">ARCHITECT (LIFETIME)</h3>
+                    <div class="mono text-[10px] uppercase tracking-[0.2em] opacity-40 font-bold">Full Environment License</div>
+                    <h3 class="mt-4 text-3xl font-black uppercase tracking-tight text-white">OPERATOR TIER (LIFETIME)</h3>
+                    
+                    <!-- HIỂN THỊ GIÁ CHIM MỒI $14 ĐÈ LÊN GIÁ CŨ $29 -->
                     <div class="mt-6 flex items-end gap-2">
-                        <span class="text-6xl font-black text-white">$19</span>
-                        <span class="pb-2 opacity-40 line-through text-sm">$39</span>
+                        <span class="text-6xl font-black text-white">$14</span>
+                        <span class="pb-2 opacity-40 line-through text-sm">$29</span>
+                        <span class="pb-2 text-white/60 mono text-xs ml-1">// one-time payment</span>
                     </div>
+
+                    <!-- GOM TOÀN BỘ TÍNH NĂNG ĐẮT GIÁ VÀO ĐÂY -->
                     <ul class="mt-8 space-y-4 opacity-85 text-sm font-medium">
-                        <li>✓ Everything in Operator Tier + Future Upgrades</li>
-                        <li>✓ Priority Early-Access to Git-Style Heatmap Feature</li>
-                        <li>✓ Native VS Code Extension Pack Module (.vsix)</li>
-                        <li>✓ Direct Private Communication Pipeline with the Core Dev</li>
+                        <li>✓ Permanent Access to the Core Browser-OS Environment</li>
+                        <li>✓ Cloud-Synced Zen Notes & Rapid Scratchpads</li>
+                        <li>✓ Zero-Friction Integrated Pomodoro App</li>
+                        <li>✓ Full Access to Real-World Progress Heatmap</li>
+                        <li>✓ Premium Curated Editor's Picks Audio Channels</li>
+                        <li>✓ Direct Private Pipeline with the Solo Developer</li>
+                        <li>✓ Lifetime Free Deployment Updates</li>
                     </ul>
                 </div>
+
+                <!-- NÚT KÊU GỌI HÀNH ĐỘNG MẠNH MẼ -->
                 <button class="mt-10 w-full py-4 rounded-lg bg-[#2A2620] border border-white/10 text-white font-black uppercase tracking-[0.15em] text-xs hover:brightness-125 transition-all shadow-lg">
-                    SECURE MY ARCHITECT SLOT
+                    CLAIM MY OPERATOR ENVIRONMENT SLOT
                 </button>
+                
             </article>
+            
+            <div class="mt-6 text-center text-xs opacity-50 mono uppercase tracking-wider">
+                [!] No monthly fees. No subscription corporate noise. Own it permanently.
+            </div>
         </div>
     </section>
 
@@ -319,15 +348,21 @@
         </div>
         <div class="grid md:grid-cols-2 gap-6">
             <div class="p-6 rounded-2xl bg-[#E4DFC8] border border-[#1C1A15]/10">
-                <h3 class="font-black text-lg uppercase tracking-tight">Does it run serverless/offline?</h3>
+                <h3 class="font-black text-lg uppercase tracking-tight">How is my data preserved?</h3>
                 <p class="mt-3 text-[#1C1A15]/70 text-sm leading-relaxed">
-                    Yes. All core environment components—the workspace engine, notes caching, and tracking timelines—operate fully within local browser runtime storage. No telemetry data leaks.
+                    Productive OS integrates a cloud-authenticated database architecture. Every single note took, timer completed, and heatmap level accumulated is pushed instantly to your encrypted private profile.
                 </p>
             </div>
             <div class="p-6 rounded-2xl bg-[#E4DFC8] border border-[#1C1A15]/10">
                 <h3 class="font-black text-lg uppercase tracking-tight">Why mock an OS instead of a normal app?</h3>
                 <p class="mt-3 text-[#1C1A15]/70 text-sm leading-relaxed">
-                    Traditional apps force you to constantly jump tabs or deal with system-level UI notifications. Productive OS captures focus by building a strict sandbox interface designed solely for execution.
+                    Traditional webapps force you to deal with sidebar tabs or system-level bloatware. Productive OS locks down your focus by delivering a unified, desktop-like sandbox inside a single tab.
+                </p>
+            </div>
+            <div class="p-6 rounded-2xl bg-[#E4DFC8] border border-[#1C1A15]/10">
+                <h3 class="font-black text-lg uppercase tracking-tight">Will there be future updates?</h3>
+                <p class="mt-3 text-[#1C1A15]/70 text-sm leading-relaxed">
+                    Absolutely. This is just the alpha launch. Everything is free. No credit card, just plug and play.
                 </p>
             </div>
         </div>
@@ -338,6 +373,49 @@
 <footer class="border-t border-[#1C1A15]/10 py-10 px-6 text-center text-xs text-[#1C1A15]/45 mono uppercase tracking-wider">
     © 2026 Productive OS — Simulated Environment for Deep Execution.
 </footer>
+
+<!-- SCRIPT CHẠY CHỮ ĐỘNG (TYPEWRITER) CHO TIÊU ĐỀ HERO -->
+<script>
+    const textElement = document.getElementById('dynamic-text');
+    const phrases = ['solo developers.', 'focus professionals.', 'lone operators.', 'deep builders.'];
+    let phraseIndex = 0;
+    let characterIndex = 0;
+    let isDeleting = false;
+    let typingSpeed = 100;
+
+    function typeEffect() {
+        const currentPhrase = phrases[phraseIndex];
+        
+        if (isDeleting) {
+            // Xóa chữ
+            textElement.textContent = currentPhrase.substring(0, characterIndex - 1);
+            characterIndex--;
+            typingSpeed = 40; // Xóa nhanh hơn gõ
+        } else {
+            // Gõ chữ
+            textElement.textContent = currentPhrase.substring(0, characterIndex + 1);
+            characterIndex++;
+            typingSpeed = 80;
+        }
+
+        // Nếu gõ xong cụm từ
+        if (!isDeleting && characterIndex === currentPhrase.length) {
+            typingSpeed = 2000; // Nghỉ 2 giây ở cuối câu trước khi xóa
+            isDeleting = true;
+        } else if (isDeleting && characterIndex === 0) {
+            isDeleting = false;
+            phraseIndex = (phraseIndex + 1) % phrases.length; // Chuyển sang cụm từ tiếp theo
+            typingSpeed = 400; // Nghỉ một chút trước khi gõ từ mới
+        }
+
+        setTimeout(typeEffect, typingSpeed);
+    }
+
+    // Kích hoạt hàm chạy chữ sau khi trang load xong
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(typeEffect, 500);
+    });
+</script>
 
 </body>
 </html>

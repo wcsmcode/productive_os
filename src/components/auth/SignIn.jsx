@@ -65,7 +65,7 @@ const SignIn = () => {
 
         <div className="text-center select-none">
           <h1 className="font-sans text-[12rem] font-black tracking-tighter leading-none">
-            {hours}:{minutes < 10 ? `0${minutes}` : minutes}
+            {hours}:{minutes < 10 ? `${minutes}` : minutes}
           </h1>
           <p className="text-xl font-bold uppercase tracking-[0.4em] opacity-40 mt-4">
             {dateString.toUpperCase()}

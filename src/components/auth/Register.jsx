@@ -16,7 +16,7 @@ const Register = () => {
         e.preventDefault(); // Chặn việc load lại trang của form mặc định
         
         if (!fullName || !email || !password) {
-            alert("PROTOCOL_ERROR: Toàn bộ thông tin không được để trống.");
+            alert("PROTOCOL_ERROR: Information should not be empty.");
             return;
         }
 
@@ -46,8 +46,8 @@ const Register = () => {
 
                 if (profileError) throw profileError;
 
-                alert("IDENTITY_DEPLOYED: Đăng ký thành công! Hãy kiểm tra Email để xác thực (nếu bật định cấu hình xác thực) hoặc tiến hành đăng nhập.");
-                
+                alert("IDENTITY_DEPLOYED: Registration successful! Please check your email for verification (if email verification is enabled) or proceed to login.");
+
                 // Đăng ký xong tự động đá trạng thái về màn hình đăng nhập
                 setcurrentState('Login');
             }
