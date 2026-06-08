@@ -16,6 +16,10 @@
     {
       "source": "/(.*)",
       "destination": "/index.html"
+    },
+    {
+      "source": "/app/docs.html",
+      "destination": "/app/docs.html"
     }
   ]
 }
